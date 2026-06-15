@@ -12,7 +12,7 @@ export const columns: ColumnDef<InventoryItem>[] = [
     header: "Material Item Name",
     cell: ({ row }) => {
       return <div>{row.original.materialItemName}</div>;
-    },
+    }
   },
   {
     accessorKey: "qty",
