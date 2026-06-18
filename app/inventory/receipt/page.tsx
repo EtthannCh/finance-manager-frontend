@@ -116,7 +116,7 @@ export default function ReceiptPage() {
 
   return (
     <div className="container mx-auto py-10 text-2xl">
-      <h1>Receipt Page</h1>
+      <h1>Receipt Pages</h1>
       <Button onClick={exportPdf}>Export to PDF</Button>
       <table className="flex flex-row-reverse my-5 mx-3">
         <tbody className="flex items-center gap-5">
