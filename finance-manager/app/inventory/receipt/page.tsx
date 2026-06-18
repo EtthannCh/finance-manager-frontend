@@ -1,20 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import useSessionStorage from "../hooks/useSessionStorage";
-import { columns, Receipt } from "./columns";
-import { DataTable } from "./data-table";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Input } from "@base-ui/react";
 import {
   getCoreRowModel,
   getSortedRowModel,
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { Input } from "@base-ui/react";
 import jsPDF from "jspdf";
-import { Button } from "@/components/ui/button";
 import { autoTable } from "jspdf-autotable";
-import { Calendar } from "@/components/ui/calendar";
+import { useEffect, useState } from "react";
+import useSessionStorage from "../../hooks/useSessionStorage";
+import { columns, Receipt } from "./columns";
+import { DataTable } from "./data-table";
 
 export default function ReceiptPage() {
   const tableData: Receipt[] = useSessionStorage("tableData");

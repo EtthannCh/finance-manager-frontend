@@ -39,6 +39,11 @@ const sidebarData: Sidebar[] = [
         subtitle: "Material Item",
         link_: "/inventory/material-item",
       },
+      {
+        id:"receipt",
+        subtitle:"Receipt",
+        link_:"/inventory/receipt"
+      }
     ],
   },
 ];
