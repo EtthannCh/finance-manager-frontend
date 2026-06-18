@@ -3,32 +3,27 @@
 import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowDown, ArrowUp } from "lucide-react";
-import { EditableCell } from "./editable-table-cell";
+import { EditableCell } from "../../components/ui/editable-table-cell";
+import RowEdit from "@/components/ui/row-edit";
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
-export type Student = {
-  studentId: number;
-  name: string;
-  dateOfBirth: string;
-  major: string;
+export type Receipt = {
+  materialName: string;
+  qty: number;
+  price: number;
 };
 
-export const columns: ColumnDef<Student>[] = [
+export const columns: ColumnDef<Receipt>[] = [
   {
-    accessorKey: "studentId",
-    header: "Student ID",
-    cell: EditableCell,
-  },
-  {
-    accessorKey: "name",
+    accessorKey: "materialName",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Name 
+          <span className="text-2xl">Material Item Name</span> 
           {column.getIsSorted() == "asc" ? (
             <ArrowUp className="ml-2 h-4 w-4" />
           ) : (
@@ -40,8 +35,33 @@ export const columns: ColumnDef<Student>[] = [
     cell: EditableCell,
   },
   {
-    accessorKey: "dateOfBirth",
-    header: "Date of Birth",
+    accessorKey: "qty",
+    header: "Qty",
     cell: EditableCell,
+    meta:{
+      type:"number"
+    }
   },
+  {
+    accessorKey: "price",
+    header: "Price",
+    cell: EditableCell,
+    meta:{
+      type:"number"
+    }
+  },
+  {
+    accessorKey:"totalPrice",
+    header:"Total Price",
+    cell:({row}) => {
+      const total = Number(row.original.price ?? 0) * Number(row.original.qty ?? 0);
+      return <span>{(total).toLocaleString("id-ID", {
+        style:"currency",currency:"IDR"
+      })}</span>
+    }
+  },
+  {
+    accessorKey:"actions",
+    cell:RowEdit
+  }
 ];

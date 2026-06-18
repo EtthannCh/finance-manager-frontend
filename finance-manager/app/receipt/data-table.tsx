@@ -1,13 +1,8 @@
 "use client";
 
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  getSortedRowModel,
-  SortingState,
-  useReactTable,
-} from "@tanstack/react-table";
+import { flexRender } from "@tanstack/react-table";
+
+import type { Table as TableType } from "@tanstack/react-table";
 
 import {
   Table,
@@ -17,59 +12,56 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useState } from "react";
 import { AddDatatableRow } from "./add-datatable-row";
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { MotionIcon } from "motion-icons-react";
+import 'motion-icons-react/style.css';
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  defData: TData[];
-}
+type DataTableContextValue<TData> = {
+  table: TableType<TData>;
+  totalValue: string;
+};
 
-const [tableData, setTableData] = useState(() => []);
-
-export function DataTable<TData, TValue>({
-  columns,
-  defData,
-}: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([]);
-
-  const [data, setData] = useState(() => [...defData]);
-  const table = useReactTable({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
-    state: {
-      sorting,
-    },
-    meta: {
-      updateData: (rowIndex: number, columnId: string, value: string) => {
-        setData((old) =>
-          old.map((row, index) => {
-            if (index === rowIndex) {
-              return {
-                ...old[rowIndex],
-                [columnId]: value,
-              };
-            }
-            return row;
-          }),
-        );
-        
-      },
-      addRow: (newData: TData) => {
-        setData([...data, newData]);
-      },
-    },
-  });
-
+export function DataTable<TData>({
+  table,
+  totalValue,
+}: DataTableContextValue<TData>) {
+  const [isLoading, setIsLoading] = useState(false);
   return (
     <div className="overflow-hidden rounded-md border">
-      <Button >Save Form</Button>
-      <AddDatatableRow table={table}></AddDatatableRow>
-      <Table>
+      <div className="flex justify-between gap-5 p-5 items-center">
+        <span>Total: Rp. {totalValue}  {isLoading??"apa saja"}</span>
+        <div className="flex gap-5">
+          <button
+            className={`flex gap-3 text-2xl p-3 outline-2 rounded-md cursor-pointer items-center ${table.getRowCount() > 0? "cursor-pointer" : ""}`}
+            disabled={table.getRowCount() < 1}
+            onClick={() => {
+              setIsLoading(true);
+              const cleanedData = table
+                .getFilteredRowModel()
+                .rows.map((row) => {
+                  return {
+                    materialName: row.getValue("materialName"),
+                    qty: row.getValue("qty"),
+                    price: row.getValue("price"),
+                  };
+                });
+              sessionStorage.setItem("tableData", JSON.stringify(cleanedData));
+                setTimeout(() => {
+                  setIsLoading(false);
+                }, 2000);
+            }}
+          >
+            <span>Save Form</span>
+            <MotionIcon name="Save" animation={isLoading? "bounce" : "none"} />
+          </button>
+          <AddDatatableRow
+            className={"outline-2 p-3 rounded-md cursor-pointer"}
+            table={table}
+          ></AddDatatableRow>
+        </div>
+      </div>
+      <Table className="text-2xl">
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
@@ -104,7 +96,10 @@ export function DataTable<TData, TValue>({
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
+              <TableCell
+                colSpan={table.getAllColumns.length}
+                className="h-24 text-center"
+              >
                 No results.
               </TableCell>
             </TableRow>
