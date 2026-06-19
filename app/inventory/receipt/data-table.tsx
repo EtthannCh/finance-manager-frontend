@@ -34,7 +34,6 @@ export function DataTable<TData>({
         <div className="flex gap-5">
           <button
             className={`flex gap-3 text-2xl p-3 outline-2 rounded-md cursor-pointer items-center ${table.getRowCount() > 0? "cursor-pointer" : ""}`}
-            disabled={table.getRowCount() < 1}
             onClick={() => {
               setIsLoading(true);
               const cleanedData = table
