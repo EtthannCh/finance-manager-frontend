@@ -16,6 +16,7 @@ import { AddDatatableRow } from "./add-datatable-row";
 import { useState } from "react";
 import { MotionIcon } from "motion-icons-react";
 import "motion-icons-react/style.css";
+import { Button } from "@base-ui/react";
 
 type DataTableContextValue<TData> = {
   table: TableType<TData>;
@@ -31,8 +32,9 @@ export function DataTable<TData>({
     <div className="overflow-hidden rounded-md border">
       <div className="flex justify-end gap-5 p-5 items-center">
         <div className="flex gap-5">
-          <button
-            className={`flex gap-3 text-2xl p-3 outline-2 rounded-md cursor-pointer items-center ${table.getRowCount() > 0 ? "cursor-pointer" : ""}`}
+          <Button
+            disabled={table.getRowCount() < 1}
+            className={`flex gap-3 text-2xl p-3 outline-2 rounded-md cursor-pointer items-center bg-black text-white ${table.getRowCount() > 0 ? "opacity-100" : "cursor-pointer opacity-50"}`}
             onClick={() => {
               setIsLoading(true);
               const cleanedData = table
@@ -53,7 +55,7 @@ export function DataTable<TData>({
           >
             <span>Save Data</span>
             <MotionIcon name="Save" animation={isLoading ? "bounce" : "none"} />
-          </button>
+          </Button>
           <AddDatatableRow
             className={"outline-2 p-3 rounded-md cursor-pointer"}
             table={table}

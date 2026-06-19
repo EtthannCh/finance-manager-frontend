@@ -206,6 +206,7 @@ export default function ReceiptPage() {
       <div className="flex justify-between items-center">
         <h1 className="text-5xl">New Invoice</h1>
         <Button
+          disabled={data.length < 1}
           className={"sticky top-0 w-[100px] h-[60px] text-xl my-5"}
           onClick={() => {
             exportPdf("save");
