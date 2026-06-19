@@ -10,8 +10,9 @@ import RowEdit from "@/components/ui/row-edit";
 // You can use a Zod schema here if you want.
 export type Receipt = {
   materialName: string;
-  qty: number;
-  price: number;
+  qty: number | string;
+  price: number| string;
+  totalPrice:string | number;
 };
 
 export const columns: ColumnDef<Receipt>[] = [
@@ -23,7 +24,7 @@ export const columns: ColumnDef<Receipt>[] = [
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          <span className="text-2xl">Material Item Name</span> 
+          <span className="text-2xl">Material Item Name</span>
           {column.getIsSorted() == "asc" ? (
             <ArrowUp className="ml-2 h-4 w-4" />
           ) : (
@@ -38,30 +39,38 @@ export const columns: ColumnDef<Receipt>[] = [
     accessorKey: "qty",
     header: "Qty",
     cell: EditableCell,
-    meta:{
-      type:"number"
-    }
+    meta: {
+      type: "number",
+    },
   },
   {
     accessorKey: "price",
     header: "Price",
     cell: EditableCell,
-    meta:{
-      type:"number"
-    }
+    meta: {
+      type: "number",
+    },
   },
   {
-    accessorKey:"totalPrice",
-    header:"Total Price",
-    cell:({row}) => {
-      const total = Number(row.original.price ?? 0) * Number(row.original.qty ?? 0);
-      return <span>{(total).toLocaleString("id-ID", {
-        style:"currency",currency:"IDR"
-      })}</span>
-    }
+    accessorKey: "totalPrice",
+    header: "Total Price",
+    accessorFn: (row) => `${Number(row.price) * Number(row.qty)}`,
+    cell: ({ row }) => {
+      const total =
+        Number(row.original.price ?? 0) * Number(row.original.qty ?? 0);
+      return (
+        <span>
+          {total.toLocaleString("id-ID", {
+            style: "currency",
+            currency: "IDR",
+          })}
+        </span>
+      );
+    },
   },
   {
-    accessorKey:"actions",
-    cell:RowEdit
-  }
+    accessorKey: "actions",
+    header: "",
+    cell: RowEdit,
+  },
 ];

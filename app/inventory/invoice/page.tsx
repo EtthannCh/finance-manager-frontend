@@ -15,6 +15,15 @@ import { useEffect, useState } from "react";
 import useSessionStorage from "../../hooks/useSessionStorage";
 import { columns, Receipt } from "./columns";
 import { DataTable } from "./data-table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function ReceiptPage() {
   const tableData: Receipt[] = useSessionStorage("tableData");
@@ -80,6 +89,9 @@ export default function ReceiptPage() {
   });
 
   const [pdfUrl, setPdfUrl] = useState("");
+  const convertToDecimal = (value: number) => {
+    return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,");
+  };
 
   const exportPdf = (actions: string) => {
     let y = 0;
@@ -111,15 +123,25 @@ export default function ReceiptPage() {
     doc.setFontSize(16);
     let ypos = 0;
 
+    let tableData: Receipt[] = [];
+    data.map((v) => {
+      tableData.push({
+        materialName: v.materialName,
+        qty: convertToDecimal(Number(v.qty)),
+        price: "Rp " + convertToDecimal(Number(v.price)),
+        totalPrice: "Rp " + convertToDecimal(Number(v.qty) * Number(v.price)),
+      });
+    });
+
     autoTable(doc, {
-      body: data,
+      body: tableData,
       margin: { top: 60, left: 10, right: 10 },
       styles: {
         fontSize: 14,
       },
       columns: [
         {
-          header: "Material Item Name",
+          header: "Nama Barang",
           dataKey: "materialName",
         },
         {
@@ -127,8 +149,12 @@ export default function ReceiptPage() {
           dataKey: "qty",
         },
         {
-          header: "Price",
+          header: "Harga",
           dataKey: "price",
+        },
+        {
+          header: "Jumlah Harga",
+          dataKey: "totalPrice",
         },
       ],
       didDrawPage: function (data) {
@@ -149,6 +175,7 @@ export default function ReceiptPage() {
       630,
       y,
     );
+    doc.text("Barang yang sudah dibeli TIDAK DAPAT DIKEMBALIKAN", 10, y);
 
     if (actions == "preview") {
       const pdfBlob = doc.output("blob");
@@ -168,56 +195,85 @@ export default function ReceiptPage() {
 
   return (
     <div className="container mx-auto py-10 text-2xl">
-      <h1>Receipt Pages</h1>
-      <Button
+      {/* <Button
         className={"sticky top-0"}
         onClick={() => {
           exportPdf("preview");
         }}
       >
         Preview PDF
-      </Button>
-      <Button
-        className={"sticky top-0"}
-        onClick={() => {
-          exportPdf("save");
-        }}
-      >
-        Save PDF
-      </Button>
-      <table className="flex flex-row-reverse my-5 mx-3">
-        <tbody className="flex items-center gap-5">
-          <tr className="flex gap-5 items-center">
-            <td>Tanggal: </td>
-            <td>
-              <Calendar
-                mode="single"
-                selected={date}
-                onSelect={setDate}
-                className="rounded-lg border"
-                captionLayout="dropdown"
-              />
-            </td>
-          </tr>
-          <tr>
-            <td>Kepada: </td>
-            <td>
-              <Input
-                className={"border-2 rounded-md w-[200px]"}
-                onChange={(e) => {
-                  setAddressTo(e.target.value);
-                }}
-              ></Input>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <DataTable
-        table={table}
-        totalValue={total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}
-      />
-      <div className="flex items-center justify-center w-full h-full">
-        <iframe src={pdfUrl} width="100%" height="100%"></iframe>
+      </Button> */}
+      <div className="flex justify-between items-center">
+        <h1 className="text-5xl">New Invoice</h1>
+        <Button
+          className={"sticky top-0 w-[100px] h-[60px] text-xl my-5"}
+          onClick={() => {
+            exportPdf("save");
+          }}
+        >
+          Save PDF
+        </Button>
+      </div>
+      <div className="border-2 p-5 my-5 rounded-md h-max">
+        <table className="flex flex-row-reverse my-5 mx-3 items-center">
+          <tbody className="flex items-center gap-5">
+            <tr className="flex gap-5 items-center">
+              <td>Tanggal: </td>
+              <td>
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    render={<Button variant="outline" />}
+                    className={"w-[200px]"}
+                  >
+                    <span className="text-xl">
+                      {date
+                        ? date.toLocaleDateString("id-ID", {
+                            day: "2-digit",
+                            month: "long",
+                            year: "numeric",
+                          })
+                        : new Date().toLocaleDateString("id-ID", {
+                            day: "2-digit",
+                            month: "long",
+                            year: "numeric",
+                          })}
+                    </span>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className={"w-full"}>
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      onSelect={setDate}
+                      className="rounded-lg border"
+                      captionLayout="dropdown"
+                    />
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </td>
+            </tr>
+            <tr className="flex gap-5">
+              <td>Kepada: </td>
+              <td>
+                <Input
+                  className={"border-2 rounded-md w-[200px]"}
+                  onChange={(e) => {
+                    setAddressTo(e.target.value);
+                  }}
+                ></Input>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <DataTable
+          table={table}
+          totalValue={total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}
+        />
+        <div className="flex justify-end p-5 mt-5">
+          <span>Total: Rp. {convertToDecimal(total)}</span>
+        </div>
+        {/* <div className="flex items-center justify-center w-full h-[600px] mt-5">
+          <iframe src={pdfUrl} width="100%" height="100%"></iframe>
+        </div> */}
       </div>
     </div>
   );

@@ -15,7 +15,7 @@ import {
 import { AddDatatableRow } from "./add-datatable-row";
 import { useState } from "react";
 import { MotionIcon } from "motion-icons-react";
-import 'motion-icons-react/style.css';
+import "motion-icons-react/style.css";
 
 type DataTableContextValue<TData> = {
   table: TableType<TData>;
@@ -29,11 +29,10 @@ export function DataTable<TData>({
   const [isLoading, setIsLoading] = useState(false);
   return (
     <div className="overflow-hidden rounded-md border">
-      <div className="flex justify-between gap-5 p-5 items-center">
-        <span>Total: Rp. {totalValue}  {isLoading??"apa saja"}</span>
+      <div className="flex justify-end gap-5 p-5 items-center">
         <div className="flex gap-5">
           <button
-            className={`flex gap-3 text-2xl p-3 outline-2 rounded-md cursor-pointer items-center ${table.getRowCount() > 0? "cursor-pointer" : ""}`}
+            className={`flex gap-3 text-2xl p-3 outline-2 rounded-md cursor-pointer items-center ${table.getRowCount() > 0 ? "cursor-pointer" : ""}`}
             onClick={() => {
               setIsLoading(true);
               const cleanedData = table
@@ -43,16 +42,17 @@ export function DataTable<TData>({
                     materialName: row.getValue("materialName"),
                     qty: row.getValue("qty"),
                     price: row.getValue("price"),
+                    totalPrice: row.getValue("totalPrice"),
                   };
                 });
               sessionStorage.setItem("tableData", JSON.stringify(cleanedData));
-                setTimeout(() => {
-                  setIsLoading(false);
-                }, 2000);
+              setTimeout(() => {
+                setIsLoading(false);
+              }, 2000);
             }}
           >
-            <span>Save Form</span>
-            <MotionIcon name="Save" animation={isLoading? "bounce" : "none"} />
+            <span>Save Data</span>
+            <MotionIcon name="Save" animation={isLoading ? "bounce" : "none"} />
           </button>
           <AddDatatableRow
             className={"outline-2 p-3 rounded-md cursor-pointer"}
@@ -96,7 +96,7 @@ export function DataTable<TData>({
           ) : (
             <TableRow>
               <TableCell
-                colSpan={table.getAllColumns.length}
+                colSpan={table.getAllColumns().length}
                 className="h-24 text-center"
               >
                 No results.

@@ -6,6 +6,7 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar";
 
+import { ThemeProvider } from "@/app/components/theme-provider";
 import { ThemeToggle } from "@/app/components/ThemeToggle";
 import {
   Accordion,
@@ -14,7 +15,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import Link from "next/link";
-import { ThemeProvider } from "@/app/components/theme-provider";
 
 type Sidebar = {
   header: string;
@@ -40,9 +40,9 @@ const sidebarData: Sidebar[] = [
         link_: "/inventory/material-item",
       },
       {
-        id:"receipt",
-        subtitle:"Receipt",
-        link_:"/inventory/receipt"
+        id:"invoice",
+        subtitle:"Invoice",
+        link_:"/inventory/invoice"
       }
     ],
   },
