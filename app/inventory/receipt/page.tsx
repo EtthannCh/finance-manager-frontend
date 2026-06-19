@@ -79,8 +79,12 @@ export default function ReceiptPage() {
     },
   });
 
-  const exportPdf = () => {
+  const [pdfUrl, setPdfUrl] = useState("");
+
+  const exportPdf = (actions: string) => {
+    let y = 0;
     const doc = new jsPDF("l", "pt", "A4");
+
     doc.text(
       date?.toLocaleDateString("id-ID", {
         day: "numeric",
@@ -90,12 +94,29 @@ export default function ReceiptPage() {
       740,
       20,
     );
+
+    doc.setProperties({
+      title: `Invoice-${addressTo}-${
+        date?.toLocaleDateString("id-ID", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        }) ?? ""
+      }`,
+    });
+
     doc.text(`Kepada: ${addressTo}`, 10, 20);
-    doc.text(`Jumlah: Rp. ${total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}`, 10, 45);
+    y += 20;
+
     doc.setFontSize(16);
+    let ypos = 0;
+
     autoTable(doc, {
       body: data,
       margin: { top: 60, left: 10, right: 10 },
+      styles: {
+        fontSize: 14,
+      },
       columns: [
         {
           header: "Material Item Name",
@@ -110,14 +131,60 @@ export default function ReceiptPage() {
           dataKey: "price",
         },
       ],
+      didDrawPage: function (data) {
+        ypos = data.cursor?.y ?? 0;
+      },
+      headStyles: {
+        fillColor: "black",
+      },
+      theme: "grid",
     });
-    doc.save("hello pdf");
+
+    y += 20;
+    y += ypos;
+
+    doc.text(`Jumlah:`, 530, y);
+    doc.text(
+      `Rp. ${total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}`,
+      630,
+      y,
+    );
+
+    if (actions == "preview") {
+      const pdfBlob = doc.output("blob");
+      setPdfUrl(URL.createObjectURL(pdfBlob));
+    } else if (actions == "save") {
+      doc.save(
+        `Invoice-${addressTo}-${
+          date?.toLocaleDateString("id-ID", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          }) ?? ""
+        }`,
+      );
+    }
   };
 
   return (
     <div className="container mx-auto py-10 text-2xl">
       <h1>Receipt Pages</h1>
-      <Button onClick={exportPdf}>Export to PDF</Button>
+      <Button
+        className={"sticky top-0"}
+        onClick={() => {
+          exportPdf("preview");
+        }}
+      >
+        Preview PDF
+      </Button>
+      <Button
+        className={"sticky top-0"}
+        onClick={() => {
+          exportPdf("save");
+        }}
+      >
+        Save PDF
+      </Button>
       <table className="flex flex-row-reverse my-5 mx-3">
         <tbody className="flex items-center gap-5">
           <tr className="flex gap-5 items-center">
@@ -149,6 +216,9 @@ export default function ReceiptPage() {
         table={table}
         totalValue={total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}
       />
+      <div className="flex items-center justify-center w-full h-full">
+        <iframe src={pdfUrl} width="100%" height="100%"></iframe>
+      </div>
     </div>
   );
 }

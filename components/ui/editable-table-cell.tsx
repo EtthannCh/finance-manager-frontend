@@ -3,7 +3,7 @@
 import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 
-export const EditableCell = ({ getValue, row, column, table}: any) => {
+export const EditableCell = ({ getValue, row, column, table }: any) => {
   const [value, setValue] = useState(getValue() ?? 0);
 
   useEffect(() => {
@@ -15,13 +15,16 @@ export const EditableCell = ({ getValue, row, column, table}: any) => {
   };
 
   return (
-    <Input
-      type={column.columnDef.meta?.type || "text"}
-      onChange={(e) => setValue(e.target.value)}
-      onBlur={onBlur}
-      className="w-[250px] text-5xl"
-      min={0}
-      value={value}
-    />
+    <>
+      <Input
+        type={column.columnDef.meta?.type || "text"}
+        onChange={(e) => setValue(e.target.value)}
+        onBlur={onBlur}
+        className="w-[250px] text-[24px]"
+        min={0}
+        value={value}
+      />
+      <span style={{fontSize:20}}>{column.columnDef.meta?.type == "number"? Number(value)?.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,") :""}</span>
+    </>
   );
 };
