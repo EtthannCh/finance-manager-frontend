@@ -20,11 +20,11 @@ export const EditableCell = ({ getValue, row, column, table }: any) => {
         type={column.columnDef.meta?.type || "text"}
         onChange={(e) => setValue(e.target.value)}
         onBlur={onBlur}
-        className="w-[250px] text-[24px]"
+        className="w-[200px] h-[40px] border border-slate-300 rounded-md px-3 text-lg text-slate-500 font-medium"
         min={0}
         value={value}
       />
-      <span style={{fontSize:20}}>{column.columnDef.meta?.type == "number"? Number(value)?.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,") :""}</span>
+      {/* <span style={{fontSize:20}}>{column.columnDef.meta?.type == "number"? Number(value)?.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,") :""}</span> */}
     </>
   );
 };

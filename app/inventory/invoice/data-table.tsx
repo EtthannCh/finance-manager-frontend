@@ -60,12 +60,13 @@ export function DataTable<TData>({ table }: DataTableContextValue<TData>) {
   };
 
   return (
-    <div className="overflow-hidden rounded-md border">
+    <div>
       <div className="flex justify-end gap-5 p-5 items-center">
         <div className="flex gap-5">
           <Button
             disabled={table.getRowCount() < 1}
-            className={`flex gap-3 text-2xl p-3 outline-2 rounded-md cursor-pointer items-center bg-black text-white ${table.getRowCount() > 0 ? "opacity-100" : "cursor-pointer opacity-50"}`}
+            className={`flex gap-3 w-[180px] h-[50px] text-xl outline-2 rounded-md cursor-pointer items-center justify-center bg-[#1e3a8a] text-white ${
+              table.getRowCount() > 0 ? "opacity-100" : "cursor-pointer opacity-50"}`}
             onClick={() => {
               setIsLoading(true);
               const cleanedData = table
@@ -94,6 +95,7 @@ export function DataTable<TData>({ table }: DataTableContextValue<TData>) {
           ></AddDatatableRow>
         </div>
       </div>
+      <div className="overflow-hidden rounded-md border">
       <Table className="text-2xl">
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -224,5 +226,6 @@ export function DataTable<TData>({ table }: DataTableContextValue<TData>) {
         </SheetContent>
       </Sheet>
     </div>
+  </div>
   );
 }
