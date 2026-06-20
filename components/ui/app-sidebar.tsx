@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Sidebar,
   SidebarContent,
@@ -40,10 +42,10 @@ const sidebarData: Sidebar[] = [
         link_: "/inventory/material-item",
       },
       {
-        id:"invoice",
-        subtitle:"Invoice",
-        link_:"/inventory/invoice"
-      }
+        id: "invoice",
+        subtitle: "Invoice",
+        link_: "/inventory/invoice",
+      },
     ],
   },
 ];
@@ -58,14 +60,24 @@ export function AppSidebar() {
     >
       <Sidebar>
         <SidebarHeader />
-        <Link href={"/"} className="text-4xl">Management </Link>
+        <Link href={"/"} className="text-4xl">
+          Management{" "}
+        </Link>
         <SidebarContent>
           {sidebarData.map((data) => (
             <Accordion>
-              <AccordionItem value={data.header} className={"flex flex-col pl-3"}>
-                <AccordionTrigger className={"text-xl"}>{data.header}</AccordionTrigger>
+              <AccordionItem
+                value={data.header}
+                className={"flex flex-col pl-3"}
+              >
+                <AccordionTrigger className={"text-xl"}>
+                  {data.header}
+                </AccordionTrigger>
                 <AccordionContent>
-                  <ul key={data.header} className="flex flex-col gap-3 text-[18px] pl-3">
+                  <ul
+                    key={data.header}
+                    className="flex flex-col gap-3 text-[18px] pl-3"
+                  >
                     {data.items.map((item) => (
                       <Link key={item.id} href={item.link_}>
                         {item.subtitle}

@@ -2,6 +2,11 @@
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@base-ui/react";
 import {
   getCoreRowModel,
@@ -15,15 +20,7 @@ import { useEffect, useState } from "react";
 import useSessionStorage from "../../hooks/useSessionStorage";
 import { columns, Receipt } from "./columns";
 import { DataTable } from "./data-table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import useMediaQuery from "@/app/hooks/useMediaQuery";
 
 export default function ReceiptPage() {
   const tableData: Receipt[] = useSessionStorage("tableData");
@@ -193,6 +190,7 @@ export default function ReceiptPage() {
     }
   };
 
+  const isMobile = useMediaQuery("(max-width: 768px)");
   return (
     <div className="container mx-auto py-10 text-2xl">
       {/* <Button
@@ -217,7 +215,9 @@ export default function ReceiptPage() {
       </div>
       <div className="border-2 p-5 my-5 rounded-md h-max">
         <table className="flex flex-row-reverse my-5 mx-3 items-center">
-          <tbody className="flex items-center gap-5">
+          <tbody
+            className={`flex items-center gap-5 ${isMobile ? "flex-col" : ""}`}
+          >
             <tr className="flex gap-5 items-center">
               <td>Tanggal: </td>
               <td>
@@ -265,10 +265,7 @@ export default function ReceiptPage() {
             </tr>
           </tbody>
         </table>
-        <DataTable
-          table={table}
-          totalValue={total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}
-        />
+        <DataTable table={table} />
         <div className="flex justify-end p-5 mt-5">
           <span>Total: Rp. {convertToDecimal(total)}</span>
         </div>

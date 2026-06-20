@@ -5,6 +5,15 @@ import { flexRender } from "@tanstack/react-table";
 import type { Table as TableType } from "@tanstack/react-table";
 
 import {
+  Field,
+  FieldDescription,
+  FieldLabel,
+  FieldLegend,
+  FieldSet,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import {
   Table,
   TableBody,
   TableCell,
@@ -12,22 +21,44 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { AddDatatableRow } from "./add-datatable-row";
-import { useState } from "react";
 import { MotionIcon } from "motion-icons-react";
 import "motion-icons-react/style.css";
-import { Button } from "@base-ui/react";
+import { useState } from "react";
+import { AddDatatableRow } from "./add-datatable-row";
+import { Receipt } from "./columns";
+import { Button } from "@/components/ui/button";
 
 type DataTableContextValue<TData> = {
   table: TableType<TData>;
-  totalValue: string;
 };
 
-export function DataTable<TData>({
-  table,
-  totalValue,
-}: DataTableContextValue<TData>) {
+export function DataTable<TData>({ table }: DataTableContextValue<TData>) {
   const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState<Receipt>({
+    materialName: "",
+    price: "",
+    qty: "",
+    totalPrice: "",
+  });
+  const handleChange = (e: any) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleFormDataChanges = async (e: any) => {
+    e.preventDefault();
+    console.log(formData);
+  };
+  // initalize value to string because components are not allowed to switch between controlled and uncontrolled value
+  const [isOpen, setIsOpen] = useState("");
+  const handleAddOnClick = () => {
+    setIsOpen(isOpen == "true" ? "false" : "true");
+  };
+
+  const convertToDecimal = (value: number) => {
+    return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,");
+  };
+
   return (
     <div className="overflow-hidden rounded-md border">
       <div className="flex justify-end gap-5 p-5 items-center">
@@ -59,6 +90,7 @@ export function DataTable<TData>({
           <AddDatatableRow
             className={"outline-2 p-3 rounded-md cursor-pointer"}
             table={table}
+            onClick={handleAddOnClick}
           ></AddDatatableRow>
         </div>
       </div>
@@ -107,6 +139,90 @@ export function DataTable<TData>({
           )}
         </TableBody>
       </Table>
+
+      <Sheet
+        open={isOpen == "true" ? true : false}
+        onOpenChange={handleAddOnClick}
+      >
+        {/* <SheetTrigger>Open</SheetTrigger> */}
+        <SheetContent className={"py-5 px-5 text-2xl"}>
+          <form onSubmit={handleFormDataChanges}>
+            <FieldSet>
+              <FieldLegend>Payment Method</FieldLegend>
+              <FieldDescription>
+                All transactions are secure and encrypted
+              </FieldDescription>
+              <Field>
+                <FieldLabel htmlFor="materialName" className="text-2xl">
+                  Material Item Name
+                </FieldLabel>
+                <Input
+                  type="text"
+                  name="materialName"
+                  id="materialName"
+                  placeholder="Material Item Name"
+                  required
+                  value={formData["materialName"]}
+                  onChange={handleChange}
+                  className="text-2xl"
+                />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="qty" className="text-2xl">
+                  <span>Quantity</span>
+                  <span>({convertToDecimal(Number(formData["qty"]))})</span>
+                </FieldLabel>
+                <Input
+                  type="number"
+                  name="qty"
+                  id="qty"
+                  placeholder="Quantity"
+                  required
+                  value={formData["qty"]}
+                  onChange={handleChange}
+                  className="text-2xl"
+                  min={0}
+                  defaultValue={0}
+                />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="price" className="text-2xl">
+                  <span>Price</span>
+                  <span>
+                    (Rp. {convertToDecimal(Number(formData["price"]))})
+                  </span>
+                </FieldLabel>
+                <Input
+                  type="number"
+                  name="price"
+                  id="price"
+                  placeholder="Price"
+                  required
+                  value={formData["price"]}
+                  onChange={handleChange}
+                  className="text-2xl"
+                  min={0}
+                  defaultValue={0}
+                />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="qty" className="text-2xl">
+                  Total Price
+                </FieldLabel>
+                <FieldLabel htmlFor="qty" className="text-2xl">
+                  Rp.{" "}
+                  {convertToDecimal(
+                    Number(formData["qty"]) * Number(formData["price"]),
+                  )}
+                </FieldLabel>
+              </Field>
+              <Button type="submit" className={"text-xl"}>
+                Submit
+              </Button>
+            </FieldSet>
+          </form>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

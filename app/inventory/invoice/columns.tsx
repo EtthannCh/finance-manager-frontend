@@ -1,10 +1,10 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import RowEdit from "@/components/ui/row-edit";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowDown, ArrowUp } from "lucide-react";
 import { EditableCell } from "../../../components/ui/editable-table-cell";
-import RowEdit from "@/components/ui/row-edit";
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
