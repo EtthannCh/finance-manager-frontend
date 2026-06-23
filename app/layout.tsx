@@ -26,10 +26,10 @@ export default function RootLayout({
       suppressHydrationWarning={true}
     >
       <body className="min-h-full flex flex-col">
-        <SidebarProvider>
+        <SidebarProvider defaultOpen={false}>
           <AppSidebar />
-            <SidebarTrigger />
-            {children}
+          <SidebarTrigger />
+          {children}
         </SidebarProvider>
       </body>
     </html>
