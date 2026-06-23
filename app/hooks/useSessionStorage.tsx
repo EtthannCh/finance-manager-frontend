@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Receipt } from "../inventory/invoice/columns";
 
 const useSessionStorage = (sessionKey: string) => {
   const [value, setValue] = useState<Receipt[]>([]);
