@@ -414,7 +414,7 @@ export default function ReceiptPage() {
       const pdfBlob = doc.output("blob");
       setPdfUrl(URL.createObjectURL(pdfBlob));
       // downloadImage(
-      //   pdfUrl,
+      //   URL.createObjectURL(pdfBlob),
       //   `Invoice-${addressTo}-${
       //     date?.toLocaleDateString("id-ID", {
       //       day: "numeric",
@@ -486,7 +486,6 @@ export default function ReceiptPage() {
           Save PDF
         </Button>
       </div>
-      <img src={pdfUrl}></img>
       <div className="p-5 my-5 mx-10 rounded-xl bg-white shadow-lg shadow-slate-300/50 h-max">
         <div
           className={`flex gap-5 justify-end mr-3 ${isMobile ? "flex-col" : ""}`}
