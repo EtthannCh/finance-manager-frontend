@@ -274,13 +274,9 @@ export default function ReceiptPage() {
   });
 
   const downloadImage = (url: string, fileName: string) => {
-    const canvas = document.createElement("canvas");
-    canvas.setAttribute("className", "canv");
-    let img = canvas.toDataURL(url);
-
     const a = document.createElement("a");
-    a.href = img;
-    a.download = `${fileName}.png`;
+    a.setAttribute("download",`${fileName}.jpg`)
+    a.setAttribute("href", url);
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -417,17 +413,8 @@ export default function ReceiptPage() {
     } else if (actions == "save") {
       const pdfBlob = doc.output("blob");
       setPdfUrl(URL.createObjectURL(pdfBlob));
-      downloadImage(
-        pdfUrl,
-        `Invoice-${addressTo}-${
-          date?.toLocaleDateString("id-ID", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          }) ?? ""
-        }`,
-      );
-      // doc.save(
+      // downloadImage(
+      //   pdfUrl,
       //   `Invoice-${addressTo}-${
       //     date?.toLocaleDateString("id-ID", {
       //       day: "numeric",
@@ -436,6 +423,15 @@ export default function ReceiptPage() {
       //     }) ?? ""
       //   }`,
       // );
+      doc.save(
+        `Invoice-${addressTo}-${
+          date?.toLocaleDateString("id-ID", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          }) ?? ""
+        }`
+      );
     }
   };
 
@@ -481,7 +477,7 @@ export default function ReceiptPage() {
         <Button
           disabled={data.length < 1}
           className={
-            "sticky top-0 w-[180px] h-[50px] text-xl my-5 !bg-[#1e3a8a] !text-white hover:!bg-[#64748b]"
+            "sticky top-0 w-[180px] h-[50px] text-xl my-5 bg-[#1e3a8a] text-white hover:bg-[#64748b]"
           }
           onClick={() => {
             exportPdf("save");
@@ -490,7 +486,7 @@ export default function ReceiptPage() {
           Save PDF
         </Button>
       </div>
-      {pdfUrl}
+      <img src={pdfUrl}></img>
       <div className="p-5 my-5 mx-10 rounded-xl bg-white shadow-lg shadow-slate-300/50 h-max">
         <div
           className={`flex gap-5 justify-end mr-3 ${isMobile ? "flex-col" : ""}`}
@@ -533,7 +529,7 @@ export default function ReceiptPage() {
             }}
           ></AddDatatableRow>
         </div>
-        <table className="flex flex-row-reverse my-5 mx-3 items-center overflow-x-scroll">
+        <table className="flex flex-row-reverse my-5 mx-3 items-center overflow-x-scroll" id="table-data">
           <tbody
             className={`flex items-center gap-5 ${isMobile ? "flex-col" : ""}`}
           >
@@ -597,7 +593,9 @@ export default function ReceiptPage() {
           <iframe src={pdfUrl} width="100%" height="100%"></iframe>
         </div> */}
       </div>
+      <div id="canvas">
 
+      </div>
       <Sheet
         open={isOpen == "true" ? true : false}
         onOpenChange={handleOpenSheet}
