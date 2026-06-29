@@ -1,11 +1,11 @@
-import { LucideX } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { LucideIcon } from "lucide-react";
 import { Button } from "./button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from "./dropdown-menu";
 
 export type Operation = {
@@ -13,16 +13,22 @@ export type Operation = {
   title: string;
   onClick: () => void;
   className: string;
-  key:string;
+  key: string;
+  Icon: LucideIcon;
+  variant:
+    | "link"
+    | "default"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "destructive";
 };
 
 type RowEditType<TData> = {
   operations: Operation[];
 };
 
-export default function RowEdit<TData>({
-  operations,
-}: RowEditType<TData>) {
+export default function RowEdit<TData>({ operations }: RowEditType<TData>) {
   return (
     <>
       <DropdownMenu>
@@ -30,28 +36,18 @@ export default function RowEdit<TData>({
           Open
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuGroup>
+          <DropdownMenuGroup className={"flex flex-col gap-3 p-2"}>
             {operations.map((v) => (
-              <DropdownMenuItem key={v.key}>
-                <Button className={v.className} onClick={v.onClick}>
-                  <LucideX color="white" />
-                  <span>{v.title}</span>
-                </Button>
-              </DropdownMenuItem>
+              <Button
+                className={cn("flex justify-between w-full", v.className)}
+                onClick={v.onClick}
+                variant={v.variant}
+                key={v.key}
+              >
+                <v.Icon />
+                <span>{v.title}</span>
+              </Button>
             ))}
-            {/* {isMobile ? <DropdownMenuSeparator /> : ""}
-            {isMobile ? (
-              <DropdownMenuItem onClick={updateRow}>
-                <Button
-                  className={"!bg-[#1e3a8a] !text-white hover:!bg-[#64748b]"}
-                >
-                  <LucideEdit color="white" />
-                </Button>
-                <span>Edit</span>
-              </DropdownMenuItem>
-            ) : (
-              ""
-            )} */}
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>

@@ -16,10 +16,10 @@ import {
   FieldLegend,
   FieldSet,
 } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 import RowEdit, { Operation } from "@/components/ui/row-edit";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { convertToDecimal } from "@/lib/utils";
-import { Input } from "@base-ui/react";
 import {
   ColumnDef,
   getCoreRowModel,
@@ -29,7 +29,7 @@ import {
 } from "@tanstack/react-table";
 import jsPDF from "jspdf";
 import { autoTable } from "jspdf-autotable";
-import { ArrowDown, ArrowUp } from "lucide-react";
+import { ArrowDown, ArrowUp, LucideEdit, LucideX } from "lucide-react";
 import { MotionIcon } from "motion-icons-react";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, SyntheticEvent, useEffect, useState } from "react";
@@ -169,14 +169,16 @@ export default function ReceiptPage() {
       id: "actions",
       accessorKey: "actions",
       header: "",
-      cell: ({ table, row }) => {
+      cell: ({ row }) => {
         const operations: Operation[] = [
           {
             title: "Hapus",
             type: "delete",
             onClick: () => handleRemoveData(row.original.id),
-            className: "bg-red-600 hover:bg-red-600",
+            className: "",
             key: row.original.id + "delete",
+            Icon: LucideX,
+            variant:"destructive"
           },
           {
             title: "Edit",
@@ -186,15 +188,13 @@ export default function ReceiptPage() {
               setSheetType("edit");
               handleUpdateData(row.original.id);
             },
-            className: `!bg-[#1e3a8a] !text-white hover:!bg-[#64748b] ${isMobile? "":"hidden"}`,
+            className: `!bg-[#1e3a8a] !text-white hover:!bg-[#64748b] ${isMobile ? "" : "hidden"}`,
             key: row.original.id + "edit",
+            Icon: LucideEdit,
+            variant:"outline"
           },
         ];
-        return (
-          <div>
-            <RowEdit operations={operations}></RowEdit>
-          </div>
-        );
+        return <RowEdit operations={operations}></RowEdit>;
       },
     },
   ];
@@ -272,6 +272,19 @@ export default function ReceiptPage() {
       },
     },
   });
+
+  const downloadImage = (url: string, fileName: string) => {
+    const canvas = document.createElement("canvas");
+    canvas.setAttribute("className", "canv");
+    let img = canvas.toDataURL(url);
+
+    const a = document.createElement("a");
+    a.href = img;
+    a.download = `${fileName}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
 
   const exportPdf = (actions: string) => {
     let y = 0;
@@ -402,7 +415,10 @@ export default function ReceiptPage() {
       const pdfBlob = doc.output("blob");
       setPdfUrl(URL.createObjectURL(pdfBlob));
     } else if (actions == "save") {
-      doc.save(
+      const pdfBlob = doc.output("blob");
+      setPdfUrl(URL.createObjectURL(pdfBlob));
+      downloadImage(
+        pdfUrl,
         `Invoice-${addressTo}-${
           date?.toLocaleDateString("id-ID", {
             day: "numeric",
@@ -411,6 +427,15 @@ export default function ReceiptPage() {
           }) ?? ""
         }`,
       );
+      // doc.save(
+      //   `Invoice-${addressTo}-${
+      //     date?.toLocaleDateString("id-ID", {
+      //       day: "numeric",
+      //       month: "long",
+      //       year: "numeric",
+      //     }) ?? ""
+      //   }`,
+      // );
     }
   };
 
@@ -431,14 +456,7 @@ export default function ReceiptPage() {
       formData ?? { materialName: "", qty: "", price: "", totalPrice: "" },
       formData["id"],
     );
-
-    // setFormData({
-    //   id: crypto.randomUUID(),
-    //   materialName: "",
-    //   qty: "",
-    //   price: "",
-    //   totalPrice: "",
-    // });
+    handleOpenSheet();
     e.preventDefault();
   };
 
@@ -472,6 +490,7 @@ export default function ReceiptPage() {
           Save PDF
         </Button>
       </div>
+      {pdfUrl}
       <div className="p-5 my-5 mx-10 rounded-xl bg-white shadow-lg shadow-slate-300/50 h-max">
         <div
           className={`flex gap-5 justify-end mr-3 ${isMobile ? "flex-col" : ""}`}
@@ -514,7 +533,7 @@ export default function ReceiptPage() {
             }}
           ></AddDatatableRow>
         </div>
-        <table className="flex flex-row-reverse my-5 mx-3 items-center">
+        <table className="flex flex-row-reverse my-5 mx-3 items-center overflow-x-scroll">
           <tbody
             className={`flex items-center gap-5 ${isMobile ? "flex-col" : ""}`}
           >
@@ -567,7 +586,7 @@ export default function ReceiptPage() {
           </tbody>
         </table>
         <DataTable table={table} />
-        <div className="flex justify-end p-5 mt-5">
+        <div className="flex justify-end p-5 mt-5 overflow-x-scroll">
           <div className="border border-slate-300 rounded-lg px-6 py-3 bg-slate-50 shadow-sm">
             <span className="text-xl text-slate-500 font-bold">
               Total: Rp {convertToDecimal(total)}
