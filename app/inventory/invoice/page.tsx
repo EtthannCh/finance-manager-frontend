@@ -282,6 +282,14 @@ export default function ReceiptPage() {
     document.body.removeChild(a);
   };
 
+  type PdfRow = {
+    no: number | string;
+    materialName: string;
+    qty: string;
+    price: string;
+    totalPrice: string;
+  };
+
   const exportPdf = (actions: string) => {
     let y = 0;
     const doc = new jsPDF("l", "pt", "A4");
@@ -306,53 +314,125 @@ export default function ReceiptPage() {
       }`,
     });
 
-    doc.setFontSize(24);
-    doc.setFont("helvetica", "bold");
-    doc.text("INVOICE", 40, 40);
-    doc.setDrawColor(220);
-    doc.line(40, 55, 800, 55);
+      // ================= HEADER =================
 
-    doc.setFontSize(14);
+    doc.setFont("helvetica","bold");
+    doc.setFontSize(22);
 
-    doc.setFont("helvetica", "bold");
-    doc.text("Kepada:", 40, 85);
+    doc.text("TTS",40,40);
 
-    doc.setFont("helvetica", "normal");
-    doc.text(addressTo || "-", 105, 85);
+    doc.setFontSize(26);
+
+    doc.text("INVOICE",780,40,{
+        align:"right"
+    });
+
+    doc.setDrawColor(180);
+    doc.line(40,55,800,55);
+
+    doc.setFontSize(11);
+
+    doc.setFont("helvetica","normal");
+
+    // doc.text("Invoice No :",560,80);
+    doc.text("Tanggal :",560,100);
+    // doc.text("Due Date :",560,120);
+
+    // doc.text(
+    //     "INV-0001",
+    //     780,
+    //     80,
+    //     {align:"right"}
+    // );
 
     doc.text(
-      date?.toLocaleDateString("id-ID", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-      }) ?? "",
-      700,
-      70,
+        date?.toLocaleDateString("id-ID",{
+            day:"2-digit",
+            month:"long",
+            year:"numeric"
+        })??"",
+        780,
+        100,
+        {align:"right"}
     );
+
+    // doc.text("-",780,120,{align:"right"});
+
+    doc.rect(40,80,230,60);
+
+    doc.setFont("helvetica","bold");
+    doc.text("Kepada :",50,100);
+
+    doc.setFont("helvetica","normal");
+    doc.text(addressTo||"-",50,120);
+
+    doc.rect(300,80,230,60);
+
+    doc.setFont("helvetica","bold");
+    doc.text("PO :",310,100);
+
+    doc.setFont("helvetica","normal");
+    doc.text("-",310,120);
+
     y += 20;
 
     doc.setFontSize(16);
     let ypos = 0;
 
-    let tableData: Receipt[] = [];
-    data.map((v) => {
+    let tableData: PdfRow[] = [];
+    data.forEach((v,index)=>{
       tableData.push({
-        id: v.id,
-        materialName: v.materialName,
-        qty: convertToDecimal(Number(v.qty)),
-        price: "Rp " + convertToDecimal(Number(v.price)),
-        totalPrice: "Rp " + convertToDecimal(Number(v.qty) * Number(v.price)),
+        no:index+1,
+        materialName:v.materialName,
+        qty:convertToDecimal(Number(v.qty)),
+        price:"Rp "+convertToDecimal(Number(v.price)),
+        totalPrice:"Rp "+convertToDecimal(Number(v.qty) * Number(v.price)),
       });
     });
+    const MAX_ROWS = 6;
+
+    while (tableData.length < MAX_ROWS) {
+      tableData.push({
+        no:"",
+        materialName:"",
+        qty:"",
+        price:"",
+        totalPrice:""
+      });
+    }
 
     autoTable(doc, {
       body: tableData,
-      margin: { top: 100, left: 40, right: 40 },
-      styles: {
-        fontSize: 11,
-        cellPadding: 8,
+      
+      margin:{
+        left:40,
+        right:40,
+        top:160,
+        bottom:80
       },
+        styles: {
+          fontSize: 11,
+          cellPadding: 10,
+          minCellHeight: 45,
+          lineWidth: 0.3,
+          lineColor: [220, 220, 220],
+        },
+        columnStyles:{
+          qty:{
+          halign:"center"
+          },
+          price:{
+          halign:"right"
+          },
+          totalPrice:{
+          halign:"right"
+          }
+          },     
       columns: [
+        {
+          header:"No",
+          dataKey:"no"
+          },
         {
           header: "Nama Barang",
           dataKey: "materialName",
@@ -373,30 +453,43 @@ export default function ReceiptPage() {
       didDrawPage: function (data) {
         ypos = data.cursor?.y ?? 0;
       },
-      headStyles: {
-        fillColor: [51, 65, 85], // #1e3a8a
-        textColor: [255, 255, 255],
-        fontStyle: "bold",
+      headStyles:{
+        fillColor:[240,240,240],
+        textColor:[0,0,0],
+        fontStyle:"bold",
+        halign:"center"
       },
-      theme: "striped",
+      theme:"grid"
     });
 
     y += 20;
     y += ypos;
 
-    doc.setFillColor(248, 250, 252);
-    doc.setDrawColor(220);
-    doc.line(40, y - 40, 800, y - 40);
-    doc.roundedRect(540, y - 25, 240, 50, 5, 5, "FD");
+    doc.setFillColor(245,245,245);
 
-    doc.setFont("helvetica", "bold");
+    doc.roundedRect(
+        560,
+        ypos+20,
+        220,
+        40,
+        3,
+        3,
+        "FD"
+    );
+    
+    doc.setFont("helvetica","bold");
     doc.setFontSize(14);
-
-    doc.text("TOTAL", 560, y);
-
-    doc.text(`Rp ${convertToDecimal(total)}`, 760, y, { align: "right" });
-    doc.setFontSize(10);
-    doc.setTextColor(120);
+    
+    doc.text("TOTAL",580,ypos+45);
+    
+    doc.text(
+        "Rp "+convertToDecimal(total),
+        770,
+        ypos+45,
+        {
+            align:"right"
+        }
+    );
 
     // doc.text(
     //   "Barang yang sudah dibeli tidak dapat dikembalikan.",
@@ -463,7 +556,7 @@ export default function ReceiptPage() {
 
   const isMobile = useMediaQuery("(max-width: 768px)");
   return (
-    <div className="container mx-auto py-3 text-2xl bg-[#f5f7fb] min-h-screen">
+    <div className="w-full min-h-screen bg-white md:bg-[#f5f7fb] py-3">
       {/* <Button
         className={"sticky top-0"}
         onClick={() => {
@@ -472,27 +565,26 @@ export default function ReceiptPage() {
       >
         Preview PDF
       </Button> */}
-      <div className="flex justify-between items-center mx-10">
+      <div className="px-3 md:px-10">
         <h1 className="text-3xl text-gray-700">New Invoice</h1>
-        <Button
-          disabled={data.length < 1}
-          className={
-            "sticky top-0 w-[180px] h-[50px] text-xl my-5 bg-[#1e3a8a] text-white hover:bg-[#64748b]"
-          }
-          onClick={() => {
-            exportPdf("save");
-          }}
-        >
-          Save PDF
-        </Button>
       </div>
-      <div className="p-5 my-5 mx-10 rounded-xl bg-white shadow-lg shadow-slate-300/50 h-max">
+      <div
+        className="
+          p-3 md:p-5
+          my-5
+          mx-0 md:mx-10
+          bg-transparent md:bg-white
+          rounded-none md:rounded-xl
+          shadow-none md:shadow-lg md:shadow-slate-300/50
+          h-max
+        "
+      >
         <div
           className={`flex gap-5 justify-end mr-3 ${isMobile ? "flex-col" : ""}`}
         >
           <Button
             disabled={table.getRowCount() < 1}
-            className={`flex gap-3 w-[180px] h-[50px] text-xl outline-2 rounded-md cursor-pointer items-center justify-center bg-[#1e3a8a] text-white ${
+            className={`flex gap-3 w-full md:w-[180px] h-[50px] text-xl outline-2 rounded-md cursor-pointer items-center justify-center bg-[#1e3a8a] text-white ${
               table.getRowCount() > 0
                 ? "opacity-100"
                 : "cursor-pointer opacity-50"
@@ -520,7 +612,7 @@ export default function ReceiptPage() {
             <MotionIcon name="Save" animation={isLoading ? "bounce" : "none"} />
           </Button>
           <AddDatatableRow
-            className={"outline-2 p-3 rounded-md cursor-pointer"}
+            className="w-full md:w-auto outline-2 p-3 rounded-md cursor-pointer"
             table={table}
             onClick={() => {
               handleOpenSheet();
@@ -528,17 +620,22 @@ export default function ReceiptPage() {
             }}
           ></AddDatatableRow>
         </div>
-        <table className="flex flex-row-reverse my-5 mx-3 items-center overflow-x-scroll" id="table-data">
-          <tbody
-            className={`flex items-center gap-5 ${isMobile ? "flex-col" : ""}`}
-          >
-            <tr className="flex gap-5 items-center">
+        <table
+          className="w-full my-5"
+          id="table-data"
+        >
+        <tbody className={`${isMobile ? "flex flex-col gap-4" : "flex items-center gap-5"}`}>
+        <tr
+          className={`flex items-center gap-5 ${
+            isMobile ? "w-full justify-between" : ""
+          }`}
+        >
               <td className="text-lg text-slate-500 font-medium">Tanggal</td>
-              <td>
+              <td className="flex-1">
                 <DropdownMenu>
                   <DropdownMenuTrigger
                     render={<Button variant="outline" />}
-                    className={"w-[200px]"}
+                    className="w-full md:w-[200px]"
                   >
                     <span className="text-lg text-slate-500 font-medium">
                       {date
@@ -569,9 +666,9 @@ export default function ReceiptPage() {
             <tr className="flex gap-5 items-center">
               <td className="text-lg text-slate-500 font-medium">Kepada</td>
 
-              <td>
+              <td className="flex-1">
                 <Input
-                  className="border border-slate-300 rounded-md w-[200px] h-[40px] px-3 text-lg text-slate-500 font-medium"
+                  className="border border-slate-300 rounded-md w-full h-[40px] px-3 text-lg text-slate-500 font-medium"
                   onChange={(e) => {
                     setAddressTo(e.target.value);
                   }}
@@ -580,14 +677,24 @@ export default function ReceiptPage() {
             </tr>
           </tbody>
         </table>
-        <DataTable table={table} />
-        <div className="flex justify-end p-5 mt-5 overflow-x-scroll">
-          <div className="border border-slate-300 rounded-lg px-6 py-3 bg-slate-50 shadow-sm">
-            <span className="text-xl text-slate-500 font-bold">
-              Total: Rp {convertToDecimal(total)}
-            </span>
-          </div>
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          <DataTable table={table} />
         </div>
+        <div className="mt-6 flex flex-col md:flex-row md:justify-end gap-4">
+        <div className="w-full md:w-auto border border-slate-300 rounded-lg px-6 py-3 bg-slate-50 shadow-sm">
+          <span className="text-xl text-slate-500 font-bold">
+            Total: Rp {convertToDecimal(total)}
+          </span>
+        </div>
+
+        <Button
+          disabled={data.length < 1}
+          className="w-full md:w-[180px] h-[50px] bg-[#1e3a8a] text-white hover:bg-[#64748b]"
+          onClick={() => exportPdf("save")}
+        >
+          Save PDF
+        </Button>
+      </div>
         {/* <div className="flex items-center justify-center w-full h-[600px] mt-5">
           <iframe src={pdfUrl} width="100%" height="100%"></iframe>
         </div> */}
