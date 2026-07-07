@@ -21,8 +21,8 @@ type DataTableContextValue<TData> = {
 export function DataTable<TData>({ table }: DataTableContextValue<TData>) {
 
   return (
-    <div className="overflow-hidden rounded-md border">
-      <Table className="text-2xl">
+    <div className="overflow-hidden rounded-md border" >
+      <Table className="text-2xl" id="datatable-data">
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>

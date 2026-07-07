@@ -31,7 +31,7 @@ import jsPDF from "jspdf";
 import { autoTable } from "jspdf-autotable";
 import { ArrowDown, ArrowUp, LucideEdit, LucideX } from "lucide-react";
 import { MotionIcon } from "motion-icons-react";
-import { useRouter } from "next/navigation";
+import { pdfToImg } from "pdftoimg-js/browser";
 import { ChangeEvent, SyntheticEvent, useEffect, useState } from "react";
 import useSessionStorage from "../../hooks/useSessionStorage";
 import { AddDatatableRow } from "./add-datatable-row";
@@ -48,7 +48,6 @@ export default function ReceiptPage() {
   const [pdfUrl, setPdfUrl] = useState("");
   const [isOpen, setIsOpen] = useState("");
   const [sheetType, setSheetType] = useState<SheetOpenType>("add");
-  const router = useRouter();
   const [formData, setFormData] = useState<Receipt>({
     id: crypto.randomUUID(),
     materialName: "",
@@ -63,10 +62,6 @@ export default function ReceiptPage() {
   useEffect(() => {
     setData(tableData);
   }, [tableData]);
-
-  // useEffect(() => {
-  //   router.refresh();
-  // }, [data]);
 
   useEffect(() => {
     let currentTotal = 0;
@@ -178,7 +173,7 @@ export default function ReceiptPage() {
             className: "",
             key: row.original.id + "delete",
             Icon: LucideX,
-            variant:"destructive"
+            variant: "destructive",
           },
           {
             title: "Edit",
@@ -191,7 +186,7 @@ export default function ReceiptPage() {
             className: `!bg-[#1e3a8a] !text-white hover:!bg-[#64748b] ${isMobile ? "" : "hidden"}`,
             key: row.original.id + "edit",
             Icon: LucideEdit,
-            variant:"outline"
+            variant: "outline",
           },
         ];
         return <RowEdit operations={operations}></RowEdit>;
@@ -290,7 +285,7 @@ export default function ReceiptPage() {
     totalPrice: string;
   };
 
-  const exportPdf = (actions: string) => {
+  const exportPdf = async (actions: string) => {
     let y = 0;
     const doc = new jsPDF("l", "pt", "A4");
 
@@ -506,8 +501,26 @@ export default function ReceiptPage() {
     } else if (actions == "save") {
       const pdfBlob = doc.output("blob");
       setPdfUrl(URL.createObjectURL(pdfBlob));
-      // downloadImage(
-      //   URL.createObjectURL(pdfBlob),
+
+      const images = await pdfToImg(doc.output("dataurlstring"), {
+        imgType: "jpg",
+        scale: 3,
+        background: "white",
+      });
+      images.forEach((imgSrc, index) => {
+        var link = document.createElement("a");
+        link.download = `Invoice-${addressTo}-${
+          date?.toLocaleDateString("id-ID", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          }) ?? ""
+        }(${index}).jpeg`;
+        link.href = imgSrc;
+        link.click();
+      });
+
+      // doc.save(
       //   `Invoice-${addressTo}-${
       //     date?.toLocaleDateString("id-ID", {
       //       day: "numeric",
@@ -516,15 +529,6 @@ export default function ReceiptPage() {
       //     }) ?? ""
       //   }`,
       // );
-      doc.save(
-        `Invoice-${addressTo}-${
-          date?.toLocaleDateString("id-ID", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          }) ?? ""
-        }`
-      );
     }
   };
 
@@ -698,9 +702,6 @@ export default function ReceiptPage() {
         {/* <div className="flex items-center justify-center w-full h-[600px] mt-5">
           <iframe src={pdfUrl} width="100%" height="100%"></iframe>
         </div> */}
-      </div>
-      <div id="canvas">
-
       </div>
       <Sheet
         open={isOpen == "true" ? true : false}

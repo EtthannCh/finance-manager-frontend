@@ -15,3 +15,5 @@ type Receipt = {
     price: number | string;
     totalPrice: string | number;
   };
+
+declare module 'pdfjs-dist/webpack.mjs' { export * from 'pdfjs-dist' }
