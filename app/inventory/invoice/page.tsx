@@ -19,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import RowEdit, { Operation } from "@/components/ui/row-edit";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { convertToDecimal } from "@/lib/utils";
 import {
   ColumnDef,
@@ -36,7 +37,6 @@ import { ChangeEvent, SyntheticEvent, useEffect, useState } from "react";
 import useSessionStorage from "../../hooks/useSessionStorage";
 import { AddDatatableRow } from "./add-datatable-row";
 import { DataTable } from "./data-table";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function ReceiptPage() {
   const tableData: Receipt[] = useSessionStorage("tableData");
@@ -279,7 +279,6 @@ export default function ReceiptPage() {
   };
 
   type PdfRow = {
-    no: number | string;
     materialName: string;
     qty: string;
     price: string;
@@ -314,8 +313,6 @@ export default function ReceiptPage() {
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(22);
-
-    doc.text("TTS", 40, 40);
 
     doc.setFontSize(26);
 
@@ -378,7 +375,6 @@ export default function ReceiptPage() {
     let tableData: PdfRow[] = [];
     data.forEach((v, index) => {
       tableData.push({
-        no: index + 1,
         materialName: v.materialName,
         qty: convertToDecimal(Number(v.qty)),
         price: "Rp " + convertToDecimal(Number(v.price)),
@@ -389,7 +385,6 @@ export default function ReceiptPage() {
 
     while (tableData.length < MAX_ROWS) {
       tableData.push({
-        no: "",
         materialName: "",
         qty: "",
         price: "",
@@ -425,10 +420,6 @@ export default function ReceiptPage() {
         },
       },
       columns: [
-        {
-          header: "No",
-          dataKey: "no",
-        },
         {
           header: "Nama Barang",
           dataKey: "materialName",
