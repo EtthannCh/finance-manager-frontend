@@ -28,7 +28,6 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <SidebarProvider defaultOpen={false}>
           <AppSidebar />
-          <SidebarTrigger />
           {children}
         </SidebarProvider>
       </body>

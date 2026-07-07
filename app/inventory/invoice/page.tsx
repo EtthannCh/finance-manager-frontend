@@ -36,6 +36,7 @@ import { ChangeEvent, SyntheticEvent, useEffect, useState } from "react";
 import useSessionStorage from "../../hooks/useSessionStorage";
 import { AddDatatableRow } from "./add-datatable-row";
 import { DataTable } from "./data-table";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function ReceiptPage() {
   const tableData: Receipt[] = useSessionStorage("tableData");
@@ -270,7 +271,7 @@ export default function ReceiptPage() {
 
   const downloadImage = (url: string, fileName: string) => {
     const a = document.createElement("a");
-    a.setAttribute("download",`${fileName}.jpg`)
+    a.setAttribute("download", `${fileName}.jpg`);
     a.setAttribute("href", url);
     document.body.appendChild(a);
     a.click();
@@ -309,28 +310,28 @@ export default function ReceiptPage() {
       }`,
     });
 
-      // ================= HEADER =================
+    // ================= HEADER =================
 
-    doc.setFont("helvetica","bold");
+    doc.setFont("helvetica", "bold");
     doc.setFontSize(22);
 
-    doc.text("TTS",40,40);
+    doc.text("TTS", 40, 40);
 
     doc.setFontSize(26);
 
-    doc.text("INVOICE",780,40,{
-        align:"right"
+    doc.text("INVOICE", 780, 40, {
+      align: "right",
     });
 
     doc.setDrawColor(180);
-    doc.line(40,55,800,55);
+    doc.line(40, 55, 800, 55);
 
     doc.setFontSize(11);
 
-    doc.setFont("helvetica","normal");
+    doc.setFont("helvetica", "normal");
 
     // doc.text("Invoice No :",560,80);
-    doc.text("Tanggal :",560,100);
+    doc.text("Tanggal :", 560, 100);
     // doc.text("Due Date :",560,120);
 
     // doc.text(
@@ -341,33 +342,33 @@ export default function ReceiptPage() {
     // );
 
     doc.text(
-        date?.toLocaleDateString("id-ID",{
-            day:"2-digit",
-            month:"long",
-            year:"numeric"
-        })??"",
-        780,
-        100,
-        {align:"right"}
+      date?.toLocaleDateString("id-ID", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+      }) ?? "",
+      780,
+      100,
+      { align: "right" },
     );
 
     // doc.text("-",780,120,{align:"right"});
 
-    doc.rect(40,80,230,60);
+    doc.rect(40, 80, 230, 60);
 
-    doc.setFont("helvetica","bold");
-    doc.text("Kepada :",50,100);
+    doc.setFont("helvetica", "bold");
+    doc.text("Kepada :", 50, 100);
 
-    doc.setFont("helvetica","normal");
-    doc.text(addressTo||"-",50,120);
+    doc.setFont("helvetica", "normal");
+    doc.text(addressTo || "-", 50, 120);
 
-    doc.rect(300,80,230,60);
+    doc.rect(300, 80, 230, 60);
 
-    doc.setFont("helvetica","bold");
-    doc.text("PO :",310,100);
+    doc.setFont("helvetica", "bold");
+    doc.text("PO :", 310, 100);
 
-    doc.setFont("helvetica","normal");
-    doc.text("-",310,120);
+    doc.setFont("helvetica", "normal");
+    doc.text("-", 310, 120);
 
     y += 20;
 
@@ -375,59 +376,59 @@ export default function ReceiptPage() {
     let ypos = 0;
 
     let tableData: PdfRow[] = [];
-    data.forEach((v,index)=>{
+    data.forEach((v, index) => {
       tableData.push({
-        no:index+1,
-        materialName:v.materialName,
-        qty:convertToDecimal(Number(v.qty)),
-        price:"Rp "+convertToDecimal(Number(v.price)),
-        totalPrice:"Rp "+convertToDecimal(Number(v.qty) * Number(v.price)),
+        no: index + 1,
+        materialName: v.materialName,
+        qty: convertToDecimal(Number(v.qty)),
+        price: "Rp " + convertToDecimal(Number(v.price)),
+        totalPrice: "Rp " + convertToDecimal(Number(v.qty) * Number(v.price)),
       });
     });
     const MAX_ROWS = 6;
 
     while (tableData.length < MAX_ROWS) {
       tableData.push({
-        no:"",
-        materialName:"",
-        qty:"",
-        price:"",
-        totalPrice:""
+        no: "",
+        materialName: "",
+        qty: "",
+        price: "",
+        totalPrice: "",
       });
     }
 
     autoTable(doc, {
       body: tableData,
-      
-      margin:{
-        left:40,
-        right:40,
-        top:160,
-        bottom:80
+
+      margin: {
+        left: 40,
+        right: 40,
+        top: 160,
+        bottom: 80,
       },
-        styles: {
-          fontSize: 11,
-          cellPadding: 10,
-          minCellHeight: 45,
-          lineWidth: 0.3,
-          lineColor: [220, 220, 220],
+      styles: {
+        fontSize: 11,
+        cellPadding: 10,
+        minCellHeight: 45,
+        lineWidth: 0.3,
+        lineColor: [220, 220, 220],
+      },
+      columnStyles: {
+        qty: {
+          halign: "center",
         },
-        columnStyles:{
-          qty:{
-          halign:"center"
-          },
-          price:{
-          halign:"right"
-          },
-          totalPrice:{
-          halign:"right"
-          }
-          },     
+        price: {
+          halign: "right",
+        },
+        totalPrice: {
+          halign: "right",
+        },
+      },
       columns: [
         {
-          header:"No",
-          dataKey:"no"
-          },
+          header: "No",
+          dataKey: "no",
+        },
         {
           header: "Nama Barang",
           dataKey: "materialName",
@@ -448,43 +449,30 @@ export default function ReceiptPage() {
       didDrawPage: function (data) {
         ypos = data.cursor?.y ?? 0;
       },
-      headStyles:{
-        fillColor:[240,240,240],
-        textColor:[0,0,0],
-        fontStyle:"bold",
-        halign:"center"
+      headStyles: {
+        fillColor: [240, 240, 240],
+        textColor: [0, 0, 0],
+        fontStyle: "bold",
+        halign: "center",
       },
-      theme:"grid"
+      theme: "grid",
     });
 
     y += 20;
     y += ypos;
 
-    doc.setFillColor(245,245,245);
+    doc.setFillColor(245, 245, 245);
 
-    doc.roundedRect(
-        560,
-        ypos+20,
-        220,
-        40,
-        3,
-        3,
-        "FD"
-    );
-    
-    doc.setFont("helvetica","bold");
+    doc.roundedRect(560, ypos + 20, 220, 40, 3, 3, "FD");
+
+    doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
-    
-    doc.text("TOTAL",580,ypos+45);
-    
-    doc.text(
-        "Rp "+convertToDecimal(total),
-        770,
-        ypos+45,
-        {
-            align:"right"
-        }
-    );
+
+    doc.text("TOTAL", 580, ypos + 45);
+
+    doc.text("Rp " + convertToDecimal(total), 770, ypos + 45, {
+      align: "right",
+    });
 
     // doc.text(
     //   "Barang yang sudah dibeli tidak dapat dikembalikan.",
@@ -569,6 +557,7 @@ export default function ReceiptPage() {
       >
         Preview PDF
       </Button> */}
+      <SidebarTrigger />
       <div className="px-3 md:px-10">
         <h1 className="text-3xl text-gray-700">New Invoice</h1>
       </div>
@@ -624,16 +613,15 @@ export default function ReceiptPage() {
             }}
           ></AddDatatableRow>
         </div>
-        <table
-          className="w-full my-5"
-          id="table-data"
-        >
-        <tbody className={`${isMobile ? "flex flex-col gap-4" : "flex items-center gap-5"}`}>
-        <tr
-          className={`flex items-center gap-5 ${
-            isMobile ? "w-full justify-between" : ""
-          }`}
-        >
+        <table className="w-full my-5" id="table-data">
+          <tbody
+            className={`${isMobile ? "flex flex-col gap-4" : "flex items-center gap-5"}`}
+          >
+            <tr
+              className={`flex items-center gap-5 ${
+                isMobile ? "w-full justify-between" : ""
+              }`}
+            >
               <td className="text-lg text-slate-500 font-medium">Tanggal</td>
               <td className="flex-1">
                 <DropdownMenu>
@@ -685,20 +673,20 @@ export default function ReceiptPage() {
           <DataTable table={table} />
         </div>
         <div className="mt-6 flex flex-col md:flex-row md:justify-end gap-4">
-        <div className="w-full md:w-auto border border-slate-300 rounded-lg px-6 py-3 bg-slate-50 shadow-sm">
-          <span className="text-xl text-slate-500 font-bold">
-            Total: Rp {convertToDecimal(total)}
-          </span>
-        </div>
+          <div className="w-full md:w-auto border border-slate-300 rounded-lg px-6 py-3 bg-slate-50 shadow-sm">
+            <span className="text-xl text-slate-500 font-bold">
+              Total: Rp {convertToDecimal(total)}
+            </span>
+          </div>
 
-        <Button
-          disabled={data.length < 1}
-          className="w-full md:w-[180px] h-[50px] bg-[#1e3a8a] text-white hover:bg-[#64748b]"
-          onClick={() => exportPdf("save")}
-        >
-          Save PDF
-        </Button>
-      </div>
+          <Button
+            disabled={data.length < 1}
+            className="w-full md:w-[180px] h-[50px] bg-[#1e3a8a] text-white hover:bg-[#64748b]"
+            onClick={() => exportPdf("save")}
+          >
+            Save PDF
+          </Button>
+        </div>
         {/* <div className="flex items-center justify-center w-full h-[600px] mt-5">
           <iframe src={pdfUrl} width="100%" height="100%"></iframe>
         </div> */}
