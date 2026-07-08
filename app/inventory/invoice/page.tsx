@@ -323,9 +323,9 @@ export default function ReceiptPage() {
     doc.setDrawColor(180);
     doc.line(40, 55, 800, 55);
 
-    doc.setFontSize(11);
+    doc.setFontSize(20);
 
-    doc.setFont("helvetica", "normal");
+    doc.setFont("helvetica", "bold");
 
     // doc.text("Invoice No :",560,80);
     doc.text("Tanggal :", 560, 100);
@@ -351,21 +351,21 @@ export default function ReceiptPage() {
 
     // doc.text("-",780,120,{align:"right"});
 
-    doc.rect(40, 80, 230, 60);
+    doc.rect(40, 80, 400, 65);
 
     doc.setFont("helvetica", "bold");
-    doc.text("Kepada :", 50, 100);
+    doc.text("Kepada :", 50, 105);
 
     doc.setFont("helvetica", "normal");
-    doc.text(addressTo || "-", 50, 120);
+    doc.text(addressTo || "-", 50, 133);
 
-    doc.rect(300, 80, 230, 60);
+    // doc.rect(300, 80, 230, 60);
 
-    doc.setFont("helvetica", "bold");
-    doc.text("PO :", 310, 100);
+    // doc.setFont("helvetica", "bold");
+    // doc.text("PO :", 310, 100);
 
-    doc.setFont("helvetica", "normal");
-    doc.text("-", 310, 120);
+    // doc.setFont("helvetica", "normal");
+    // doc.text("-", 310, 120);
 
     y += 20;
 
@@ -402,10 +402,11 @@ export default function ReceiptPage() {
         bottom: 80,
       },
       styles: {
-        fontSize: 11,
+        fontSize: 20,
+        fontStyle: "bold",
         cellPadding: 10,
         minCellHeight: 45,
-        lineWidth: 0.3,
+        lineWidth: 2,
         lineColor: [220, 220, 220],
       },
       columnStyles: {
@@ -454,14 +455,14 @@ export default function ReceiptPage() {
 
     doc.setFillColor(245, 245, 245);
 
-    doc.roundedRect(560, ypos + 20, 220, 40, 3, 3, "FD");
+    doc.roundedRect(480, ypos + 20, 320, 60, 3, 3, "FD");
 
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(14);
+    doc.setFontSize(20);
 
-    doc.text("TOTAL", 580, ypos + 45);
+    doc.text("TOTAL : ", 500, ypos + 57);
 
-    doc.text("Rp " + convertToDecimal(total), 770, ypos + 45, {
+    doc.text("Rp " + convertToDecimal(total), 760, ypos + 57, {
       align: "right",
     });
 
