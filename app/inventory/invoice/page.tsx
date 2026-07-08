@@ -421,12 +421,12 @@ export default function ReceiptPage() {
       },
       columns: [
         {
-          header: "Nama Barang",
-          dataKey: "materialName",
-        },
-        {
           header: "Banyaknya",
           dataKey: "qty",
+        },
+        {
+          header: "Nama Barang",
+          dataKey: "materialName",
         },
         {
           header: "Harga Satuan",
