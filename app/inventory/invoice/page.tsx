@@ -676,7 +676,7 @@ export default function ReceiptPage() {
             className="w-full md:w-[180px] h-[50px] bg-[#1e3a8a] text-white hover:bg-[#64748b]"
             onClick={() => exportPdf("save")}
           >
-            Save PDF
+            Save Gambar
           </Button>
         </div>
         {/* <div className="flex items-center justify-center w-full h-[600px] mt-5">
