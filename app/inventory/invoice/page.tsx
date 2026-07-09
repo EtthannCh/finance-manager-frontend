@@ -462,7 +462,7 @@ export default function ReceiptPage() {
 
     doc.text("TOTAL : ", 500, ypos + 57);
 
-    doc.text("Rp " + convertToDecimal(total), 760, ypos + 57, {
+    doc.text("Rp " + convertToDecimal(total), 850, ypos + 57, {
       align: "right",
     });
 
