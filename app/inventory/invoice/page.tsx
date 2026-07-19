@@ -307,7 +307,7 @@ export default function ReceiptPage() {
 
   const exportPdf = async (actions: string) => {
     let y = 0;
-    const doc = new jsPDF("l", "pt", [1440, 14400]);
+    const doc = new jsPDF("l", "pt", "a4");
 
     // doc.text(
     //   date?.toLocaleDateString("id-ID", {
@@ -416,8 +416,11 @@ export default function ReceiptPage() {
       });
     }
 
+    // height = fontSize * numberOfLines * lineHeight + anyNum;
     const pdfHeight = 20 * numberOfLines * 2 + 1000;
-    const doc2 = new jsPDF("l", "pt", [1440, pdfHeight]);
+    const pdfWidth = 1440;
+
+    const doc2 = new jsPDF("l", "pt", [pdfWidth, pdfHeight]);
 
     doc2.setProperties({
       title: `Invoice-${addressTo}-${
@@ -436,19 +439,19 @@ export default function ReceiptPage() {
 
     doc2.setFontSize(26);
 
-    doc2.text("INVOICE", 2150, 40, {
+    doc2.text("INVOICE", pdfWidth, 40, {
       align: "right",
     });
 
     doc2.setDrawColor(180);
-    doc2.line(40, 55, 2150, 55);
+    doc2.line(40, 55, pdfWidth, 55);
 
     doc2.setFontSize(20);
 
     doc2.setFont("helvetica", "bold");
 
     // doc.text("Invoice No :",560,80);
-    doc2.text("Tanggal :", 1900, 100);
+    doc2.text("Tanggal :", pdfWidth - 250, 100);
     // doc.text("Due Date :",560,120);
 
     // doc.text(
@@ -464,7 +467,7 @@ export default function ReceiptPage() {
         month: "long",
         year: "numeric",
       }) ?? "",
-      2150,
+      pdfWidth,
       100,
       { align: "right" },
     );
@@ -555,14 +558,14 @@ export default function ReceiptPage() {
 
     doc2.setFillColor(245, 245, 245);
 
-    doc2.roundedRect(480, ypos + 20, 320, 60, 3, 3, "FD");
+    doc2.roundedRect(pdfWidth - 300, ypos + 20, 300, 60, 3, 3, "FD");
 
     doc2.setFont("helvetica", "bold");
     doc2.setFontSize(20);
 
-    doc2.text("TOTAL : ", 500, ypos + 57);
+    doc2.text("TOTAL : ", pdfWidth - 380, ypos + 57);
 
-    doc2.text("Rp " + convertToDecimal(total), 760, ypos + 57, {
+    doc2.text("Rp " + convertToDecimal(total), pdfWidth - 100, ypos + 57, {
       align: "right",
     });
 
