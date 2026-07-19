@@ -436,19 +436,19 @@ export default function ReceiptPage() {
 
     doc2.setFontSize(26);
 
-    doc2.text("INVOICE", 780, 40, {
+    doc2.text("INVOICE", 2150, 40, {
       align: "right",
     });
 
     doc2.setDrawColor(180);
-    doc2.line(40, 55, 800, 55);
+    doc2.line(40, 55, 2150, 55);
 
     doc2.setFontSize(20);
 
     doc2.setFont("helvetica", "bold");
 
     // doc.text("Invoice No :",560,80);
-    doc2.text("Tanggal :", 560, 100);
+    doc2.text("Tanggal :", 1900, 100);
     // doc.text("Due Date :",560,120);
 
     // doc.text(
@@ -464,7 +464,7 @@ export default function ReceiptPage() {
         month: "long",
         year: "numeric",
       }) ?? "",
-      780,
+      2150,
       100,
       { align: "right" },
     );
