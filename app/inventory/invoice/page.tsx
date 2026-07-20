@@ -302,7 +302,6 @@ export default function ReceiptPage() {
     qty: string;
     price: string;
     totalPrice: string;
-    unitOfMeasure: string;
   };
 
   const exportPdf = async (actions: string) => {
@@ -400,7 +399,6 @@ export default function ReceiptPage() {
         qty: convertToDecimal(Number(v.qty)),
         price: "Rp " + convertToDecimal(Number(v.price)),
         totalPrice: "Rp " + convertToDecimal(Number(v.qty) * Number(v.price)),
-        unitOfMeasure: convertToDecimal(Number(v.unitOfMeasure ?? 0)),
       });
       numberOfLines += 1;
     });
@@ -412,88 +410,12 @@ export default function ReceiptPage() {
         qty: "",
         price: "",
         totalPrice: "",
-        unitOfMeasure: "",
       });
     }
 
-    // height = fontSize * numberOfLines * lineHeight + anyNum;
-    const pdfHeight = 20 * numberOfLines * 2 + 1000;
-    const pdfWidth = 1440;
-
-    const doc2 = new jsPDF("l", "pt", [pdfWidth, pdfHeight]);
-
-    doc2.setProperties({
-      title: `Invoice-${addressTo}-${
-        date?.toLocaleDateString("id-ID", {
-          day: "numeric",
-          month: "long",
-          year: "numeric",
-        }) ?? ""
-      }`,
-    });
-
-    // ================= HEADER =================
-
-    doc2.setFont("helvetica", "bold");
-    doc2.setFontSize(22);
-
-    doc2.setFontSize(26);
-
-    doc2.text("INVOICE", pdfWidth, 40, {
-      align: "right",
-    });
-
-    doc2.setDrawColor(180);
-    doc2.line(40, 55, pdfWidth, 55);
-
-    doc2.setFontSize(20);
-
-    doc2.setFont("helvetica", "bold");
-
-    // doc.text("Invoice No :",560,80);
-    doc2.text("Tanggal :", pdfWidth - 250, 100);
-    // doc.text("Due Date :",560,120);
-
-    // doc.text(
-    //     "INV-0001",
-    //     780,
-    //     80,
-    //     {align:"right"}
-    // );
-
-    doc2.text(
-      date?.toLocaleDateString("id-ID", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-      }) ?? "",
-      pdfWidth,
-      100,
-      { align: "right" },
-    );
-
-    // doc.text("-",780,120,{align:"right"});
-
-    doc2.rect(40, 80, 400, 65);
-
-    doc2.setFont("helvetica", "bold");
-    doc2.text("Kepada :", 50, 105);
-
-    doc2.setFont("helvetica", "normal");
-    doc2.text(addressTo || "testing", 50, 133);
-
-    // doc.rect(300, 80, 230, 60);
-
-    // doc.setFont("helvetica", "bold");
-    // doc.text("PO :", 310, 100);
-
-    // doc.setFont("helvetica", "normal");
-    // doc.text("-", 310, 120);
-
-    doc2.setFontSize(16);
-
-    autoTable(doc2, {
+    autoTable(doc, {
       body: tableData,
+      tableWidth: doc.internal.pageSize.getWidth(),
       margin: {
         left: 40,
         right: 40,
@@ -529,8 +451,134 @@ export default function ReceiptPage() {
           dataKey: "materialName",
         },
         {
-          header: "Harga per Satuan",
-          dataKey: "unitOfMeasure",
+          header: "Harga Satuan",
+          dataKey: "price",
+        },
+        {
+          header: "Jumlah Harga",
+          dataKey: "totalPrice",
+        },
+      ],
+      headStyles: {
+        fillColor: [240, 240, 240],
+        textColor: [0, 0, 0],
+        fontStyle: "bold",
+        halign: "center",
+      },
+      theme: "grid",
+    });
+
+    const pdfWidth = doc.internal.pageSize.getWidth();
+    const pdfHeight = doc.internal.pageSize.getHeight();
+
+    const doc2 = new jsPDF("l", "pt", [pdfWidth * 1.8, pdfHeight * 2.7]);
+
+    doc2.setProperties({
+      title: `Invoice-${addressTo}-${
+        date?.toLocaleDateString("id-ID", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        }) ?? ""
+      }`,
+    });
+
+    // ================= HEADER =================
+
+    doc2.setFont("helvetica", "bold");
+    doc2.setFontSize(22);
+
+    doc2.setFontSize(26);
+
+    doc2.text("INVOICE", pdfWidth * 1.8 + 40, 40, {
+      align: "right",
+    });
+
+    doc2.setDrawColor(180);
+    doc2.line(40, 55, pdfWidth * 1.8 + 40, 55);
+
+    doc2.setFontSize(20);
+
+    doc2.setFont("helvetica", "bold");
+
+    // doc.text("Invoice No :",560,80);
+    doc2.text("Tanggal :", pdfWidth * 1.8 - 300, 100);
+    // doc.text("Due Date :",560,120);
+
+    // doc.text(
+    //     "INV-0001",
+    //     780,
+    //     80,
+    //     {align:"right"}
+    // );
+
+    doc2.text(
+      date?.toLocaleDateString("id-ID", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+      }) ?? "",
+      pdfWidth * 1.8 + 40,
+      100,
+      { align: "right" },
+    );
+
+    // doc.text("-",780,120,{align:"right"});
+
+    doc2.rect(40, 80, 400, 65);
+
+    doc2.setFont("helvetica", "bold");
+    doc2.text("Kepada :", 50, 105);
+
+    doc2.setFont("helvetica", "normal");
+    doc2.text(addressTo || "-", 50, 130);
+
+    // doc.rect(300, 80, 230, 60);
+
+    // doc.setFont("helvetica", "bold");
+    // doc.text("PO :", 310, 100);
+
+    // doc.setFont("helvetica", "normal");
+    // doc.text("-", 310, 120);
+
+    doc2.setFontSize(16);
+
+    autoTable(doc2, {
+      body: tableData,
+      tableWidth: doc.internal.pageSize.getWidth() * 1.8,
+      margin: {
+        left: 40,
+        right: 40,
+        top: 160,
+        bottom: 80,
+      },
+      styles: {
+        fontSize: 20,
+        fontStyle: "bold",
+        cellPadding: 10,
+        minCellHeight: 45,
+        lineWidth: 2,
+        lineColor: [220, 220, 220],
+      },
+      columnStyles: {
+        qty: {
+          halign: "center",
+        },
+        price: {
+          halign: "right",
+        },
+        totalPrice: {
+          halign: "right",
+        },
+      },
+      columns: [
+        {
+          header: "Banyaknya",
+          dataKey: "qty",
+        },
+        {
+          header: "Nama Barang",
+          dataKey: "materialName",
         },
         {
           header: "Harga Satuan",
@@ -558,14 +606,14 @@ export default function ReceiptPage() {
 
     doc2.setFillColor(245, 245, 245);
 
-    doc2.roundedRect(pdfWidth - 300, ypos + 20, 300, 60, 3, 3, "FD");
+    doc2.roundedRect((pdfWidth*1.38), ypos + 20, 400, 60, 3, 3, "FD");
 
     doc2.setFont("helvetica", "bold");
     doc2.setFontSize(20);
 
-    doc2.text("TOTAL : ", pdfWidth - 380, ypos + 57);
+    doc2.text("TOTAL : ", (pdfWidth * 1.8)-340, ypos + 57);
 
-    doc2.text("Rp " + convertToDecimal(total), pdfWidth - 100, ypos + 57, {
+    doc2.text("Rp " + convertToDecimal(total), (pdfWidth * 1.8)+20, ypos + 57, {
       align: "right",
     });
 
