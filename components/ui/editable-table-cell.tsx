@@ -34,7 +34,7 @@ export const EditableCell = ({ getValue, row, column, table }: any) => {
           type={column.columnDef.meta?.type || "text"}
           onChange={(e) => setValue(e.target.value)}
           onBlur={onBlur}
-          className={`w-[200px] h-[40px] border border-slate-300 rounded-md px-3 text-lg text-slate-500 font-bold ${value == "" ? "border-red-500 border-2" : ""}`}
+          className={`w-50 h-10 border border-slate-300 rounded-md px-3 text-lg text-slate-500 font-bold ${value == "" ? "border-red-500 border-2" : ""}`}
           min={column.columnDef.meta?.type == "number" ? 0 : ""}
           value={value}
           placeholder={

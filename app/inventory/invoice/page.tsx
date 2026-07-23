@@ -76,21 +76,10 @@ export default function ReceiptPage() {
         //     ? Number(v.unitOfMeasure)
         //     : 1
         // ) *
-          Number(v.price ?? 0) *
-          Number(v.qty ?? 0);
+        Number(v.price ?? 0) * Number(v.qty ?? 0);
     });
     setTotal(currentTotal);
   }, [data]);
-
-  type Receipt = {
-    id: string;
-    length: number | string;        // Berapa meter/kaki
-    unitOfMeasure: number | string; // Harga per meter/kaki
-    materialName: string;
-    qty: number | string;
-    price: number | string;
-    totalPrice: string | number;
-  };
 
   const handleUpdateData = (id: string): void => {
     const findData: Receipt | undefined = data.find((v) => v.id === id);
@@ -106,6 +95,18 @@ export default function ReceiptPage() {
             unitOfMeasure: formData["unitOfMeasure"],
           }
         : findData,
+    );
+    table.options.meta?.updateData(
+      {
+        id: formData["id"],
+        materialName: formData["materialName"],
+        qty: formData["qty"],
+        price: formData["price"],
+        totalPrice: formData["totalPrice"],
+        length: formData["length"],
+        unitOfMeasure: formData["unitOfMeasure"],
+      },
+      formData["id"],
     );
   };
 
@@ -191,12 +192,11 @@ export default function ReceiptPage() {
       accessorFn: (row) => `${Number(row.price) * Number(row.qty)}`,
       cell: ({ row }) => {
         let total =
-        // (Number(row.original.unitOfMeasure) > 0
-        // ? Number(row.original.unitOfMeasure)
-        // : 1) 
-        // *
-          Number(row.original.price ?? 0) *
-          Number(row.original.qty ?? 0);
+          // (Number(row.original.unitOfMeasure) > 0
+          // ? Number(row.original.unitOfMeasure)
+          // : 1)
+          // *
+          Number(row.original.price ?? 0) * Number(row.original.qty ?? 0);
         return (
           <span className="text-lg text-slate-500 font-medium">
             {convertToDecimal(total)}
@@ -314,15 +314,6 @@ export default function ReceiptPage() {
     },
   });
 
-  const downloadImage = (url: string, fileName: string) => {
-    const a = document.createElement("a");
-    a.setAttribute("download", `${fileName}.jpg`);
-    a.setAttribute("href", url);
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  };
-
   type PdfRow = {
     materialName: string;
     qty: string;
@@ -424,20 +415,13 @@ export default function ReceiptPage() {
         materialName: v.materialName,
         qty: convertToDecimal(Number(v.qty)),
         price: "Rp " + convertToDecimal(Number(v.price)),
-        totalPrice: "Rp " + convertToDecimal(Number(v.qty) * Number(v.price)
-        // *
-        // (
-        //   Number(v.unitOfMeasure) > 0
-        //     ? Number(v.unitOfMeasure)
-        //     : 1
-        // )
-      ),
+        totalPrice: "Rp " + convertToDecimal(Number(v.qty) * Number(v.price)),
       });
       numberOfLines += 1;
     });
     const MIN_ROWS = 6;
 
-    if (tableData.length < MIN_ROWS) {
+    while (tableData.length < MIN_ROWS) {
       tableData.push({
         materialName: "",
         qty: "",
@@ -639,14 +623,14 @@ export default function ReceiptPage() {
 
     doc2.setFillColor(245, 245, 245);
 
-    doc2.roundedRect((pdfWidth*1.38), ypos + 20, 400, 60, 3, 3, "FD");
+    doc2.roundedRect(pdfWidth * 1.38, ypos + 20, 400, 60, 3, 3, "FD");
 
     doc2.setFont("helvetica", "bold");
     doc2.setFontSize(20);
 
-    doc2.text("TOTAL : ", (pdfWidth * 1.8)-340, ypos + 57);
+    doc2.text("TOTAL : ", pdfWidth * 1.8 - 340, ypos + 57);
 
-    doc2.text("Rp " + convertToDecimal(total), (pdfWidth * 1.8)+20, ypos + 57, {
+    doc2.text("Rp " + convertToDecimal(total), pdfWidth * 1.8 + 20, ypos + 57, {
       align: "right",
     });
 
@@ -755,20 +739,20 @@ export default function ReceiptPage() {
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-  
+
     setFormData((prev) => {
       const updated = {
         ...prev,
         [name]: value,
       };
-  
+
       const length = Number(updated.length);
       const unit = Number(updated.unitOfMeasure);
-  
+
       if (length > 0 && unit > 0) {
         updated.price = String(length * unit);
       }
-  
+
       return updated;
     });
   };
@@ -788,7 +772,7 @@ export default function ReceiptPage() {
       <div className="px-3 md:px-10">
         <h1 className="text-3xl text-gray-700">New Invoice</h1>
       </div>
-      
+
       <div
         className="
           p-3 md:p-5
@@ -1034,7 +1018,7 @@ export default function ReceiptPage() {
                   Rp.{" "}
                   {convertToDecimal(
                     Number(formData["qty"] || 0) *
-                    Number(formData["price"] || 0) 
+                      Number(formData["price"] || 0),
                     // *
                     // (
                     //   Number(formData["unitOfMeasure"]) > 0
