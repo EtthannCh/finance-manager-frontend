@@ -67,13 +67,18 @@ export default function ReceiptPage() {
   useEffect(() => {
     let currentTotal = 0;
     data.map((v) => {
-      currentTotal = currentTotal + Number(v.price ?? 0) * Number(v.qty ?? 0);
+      currentTotal =
+        currentTotal +
+        Number(v.unitOfMeasure ?? 1) *
+          Number(v.price ?? 0) *
+          Number(v.qty ?? 0);
     });
     setTotal(currentTotal);
   }, [data]);
 
   type Receipt = {
     id: string;
+    unitOfMeasure?: string;
     materialName: string;
     qty: number | string;
     price: number | string;
@@ -126,6 +131,18 @@ export default function ReceiptPage() {
       cell: EditableCell,
     },
     {
+      accessorKey: "unitOfMeasure",
+      header: () => (
+        <span className="text-xl text-slate-500 font-bold">
+          Harga per Satuan
+        </span>
+      ),
+      cell: EditableCell,
+      meta: {
+        type: "number",
+      },
+    },
+    {
       accessorKey: "qty",
       header: () => (
         <span className="text-xl text-slate-500 font-bold">Banyaknya</span>
@@ -152,8 +169,10 @@ export default function ReceiptPage() {
       ),
       accessorFn: (row) => `${Number(row.price) * Number(row.qty)}`,
       cell: ({ row }) => {
-        const total =
-          Number(row.original.price ?? 0) * Number(row.original.qty ?? 0);
+        let total =
+          Number(row.original.unitOfMeasure ?? 1) *
+          Number(row.original.price ?? 0) *
+          Number(row.original.qty ?? 0);
         return (
           <span className="text-lg text-slate-500 font-medium">
             {convertToDecimal(total)}
@@ -287,7 +306,7 @@ export default function ReceiptPage() {
 
   const exportPdf = async (actions: string) => {
     let y = 0;
-    const doc = new jsPDF("l", "pt", "A4");
+    const doc = new jsPDF("l", "pt", "a4");
 
     // doc.text(
     //   date?.toLocaleDateString("id-ID", {
@@ -373,6 +392,7 @@ export default function ReceiptPage() {
     let ypos = 0;
 
     let tableData: PdfRow[] = [];
+    let numberOfLines = 0;
     data.forEach((v, index) => {
       tableData.push({
         materialName: v.materialName,
@@ -380,10 +400,11 @@ export default function ReceiptPage() {
         price: "Rp " + convertToDecimal(Number(v.price)),
         totalPrice: "Rp " + convertToDecimal(Number(v.qty) * Number(v.price)),
       });
+      numberOfLines += 1;
     });
-    const MAX_ROWS = 6;
+    const MIN_ROWS = 6;
 
-    while (tableData.length < MAX_ROWS) {
+    if (tableData.length < MIN_ROWS) {
       tableData.push({
         materialName: "",
         qty: "",
@@ -394,7 +415,137 @@ export default function ReceiptPage() {
 
     autoTable(doc, {
       body: tableData,
+      tableWidth: doc.internal.pageSize.getWidth(),
+      margin: {
+        left: 40,
+        right: 40,
+        top: 160,
+        bottom: 80,
+      },
+      styles: {
+        fontSize: 20,
+        fontStyle: "bold",
+        cellPadding: 10,
+        minCellHeight: 45,
+        lineWidth: 2,
+        lineColor: [220, 220, 220],
+      },
+      columnStyles: {
+        qty: {
+          halign: "center",
+        },
+        price: {
+          halign: "right",
+        },
+        totalPrice: {
+          halign: "right",
+        },
+      },
+      columns: [
+        {
+          header: "Banyaknya",
+          dataKey: "qty",
+        },
+        {
+          header: "Nama Barang",
+          dataKey: "materialName",
+        },
+        {
+          header: "Harga Satuan",
+          dataKey: "price",
+        },
+        {
+          header: "Jumlah Harga",
+          dataKey: "totalPrice",
+        },
+      ],
+      headStyles: {
+        fillColor: [240, 240, 240],
+        textColor: [0, 0, 0],
+        fontStyle: "bold",
+        halign: "center",
+      },
+      theme: "grid",
+    });
 
+    const pdfWidth = doc.internal.pageSize.getWidth();
+    const pdfHeight = doc.internal.pageSize.getHeight();
+
+    const doc2 = new jsPDF("l", "pt", [pdfWidth * 1.8, pdfHeight * 2.7]);
+
+    doc2.setProperties({
+      title: `Invoice-${addressTo}-${
+        date?.toLocaleDateString("id-ID", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        }) ?? ""
+      }`,
+    });
+
+    // ================= HEADER =================
+
+    doc2.setFont("helvetica", "bold");
+    doc2.setFontSize(22);
+
+    doc2.setFontSize(26);
+
+    doc2.text("INVOICE", pdfWidth * 1.8 + 40, 40, {
+      align: "right",
+    });
+
+    doc2.setDrawColor(180);
+    doc2.line(40, 55, pdfWidth * 1.8 + 40, 55);
+
+    doc2.setFontSize(20);
+
+    doc2.setFont("helvetica", "bold");
+
+    // doc.text("Invoice No :",560,80);
+    doc2.text("Tanggal :", pdfWidth * 1.8 - 300, 100);
+    // doc.text("Due Date :",560,120);
+
+    // doc.text(
+    //     "INV-0001",
+    //     780,
+    //     80,
+    //     {align:"right"}
+    // );
+
+    doc2.text(
+      date?.toLocaleDateString("id-ID", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+      }) ?? "",
+      pdfWidth * 1.8 + 40,
+      100,
+      { align: "right" },
+    );
+
+    // doc.text("-",780,120,{align:"right"});
+
+    doc2.rect(40, 80, 400, 65);
+
+    doc2.setFont("helvetica", "bold");
+    doc2.text("Kepada :", 50, 105);
+
+    doc2.setFont("helvetica", "normal");
+    doc2.text(addressTo || "-", 50, 130);
+
+    // doc.rect(300, 80, 230, 60);
+
+    // doc.setFont("helvetica", "bold");
+    // doc.text("PO :", 310, 100);
+
+    // doc.setFont("helvetica", "normal");
+    // doc.text("-", 310, 120);
+
+    doc2.setFontSize(16);
+
+    autoTable(doc2, {
+      body: tableData,
+      tableWidth: doc.internal.pageSize.getWidth() * 1.8,
       margin: {
         left: 40,
         right: 40,
@@ -453,16 +604,16 @@ export default function ReceiptPage() {
     y += 20;
     y += ypos;
 
-    doc.setFillColor(245, 245, 245);
+    doc2.setFillColor(245, 245, 245);
 
-    doc.roundedRect(480, ypos + 20, 320, 60, 3, 3, "FD");
+    doc2.roundedRect((pdfWidth*1.38), ypos + 20, 400, 60, 3, 3, "FD");
 
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(20);
+    doc2.setFont("helvetica", "bold");
+    doc2.setFontSize(20);
 
-    doc.text("TOTAL : ", 500, ypos + 57);
+    doc2.text("TOTAL : ", (pdfWidth * 1.8)-340, ypos + 57);
 
-    doc.text("Rp " + convertToDecimal(total), 850, ypos + 57, {
+    doc2.text("Rp " + convertToDecimal(total), (pdfWidth * 1.8)+20, ypos + 57, {
       align: "right",
     });
 
@@ -479,15 +630,38 @@ export default function ReceiptPage() {
       const pdfBlob = doc.output("blob");
       setPdfUrl(URL.createObjectURL(pdfBlob));
     } else if (actions == "save") {
-      const pdfBlob = doc.output("blob");
+      const pdfBlob = doc2.output("blob");
       setPdfUrl(URL.createObjectURL(pdfBlob));
 
-      const images = await pdfToImg(doc.output("dataurlstring"), {
+      const images = await pdfToImg(doc2.output("dataurlstring"), {
         imgType: "jpg",
         scale: 3,
         background: "white",
       });
-      images.forEach((imgSrc, index) => {
+
+      // let canvasUrl = "";
+      // const canvas = document.getElementById(
+      //   "testing-canvas",
+      // ) as HTMLCanvasElement;
+      // let context = canvas.getContext("2d");
+      // canvas.width = 920;
+      // canvas.height = 100;
+
+      // let yAxis = 0;
+      images.forEach((imgSrc) => {
+        //   const tesImg = new Image();
+        //   tesImg.src = imgSrc;
+
+        //   const currentY = yAxis;
+        //   yAxis += 750;
+
+        //   canvas.height = yAxis;
+        //   tesImg.onload = function () {
+
+        //     context?.beginPath();
+        //     context?.drawImage(tesImg, 30, currentY, 750, 750);
+        //     context?.fill();
+        //   };
         var link = document.createElement("a");
         link.download = `Invoice-${addressTo}-${
           date?.toLocaleDateString("id-ID", {
@@ -495,10 +669,15 @@ export default function ReceiptPage() {
             month: "long",
             year: "numeric",
           }) ?? ""
-        }(${index}).jpeg`;
+        }.jpeg`;
         link.href = imgSrc;
         link.click();
       });
+
+      // link.href = canvas.toDataURL("image/jpeg");
+      // canvas.onload = function () {
+      // console.log(images);
+      // };
 
       // doc.save(
       //   `Invoice-${addressTo}-${
@@ -553,6 +732,7 @@ export default function ReceiptPage() {
       <div className="px-3 md:px-10">
         <h1 className="text-3xl text-gray-700">New Invoice</h1>
       </div>
+      <canvas id="testing-canvas" className=""></canvas>
       <div
         className="
           p-3 md:p-5
@@ -687,7 +867,7 @@ export default function ReceiptPage() {
         open={isOpen == "true" ? true : false}
         onOpenChange={handleOpenSheet}
       >
-        <SheetContent className={"py-5 px-5 text-2xl"}>
+        <SheetContent className={"py-5 px-5 text-2xl overflow-y-scroll"}>
           <form onSubmit={handleFormDataChanges}>
             <FieldSet>
               <FieldLegend>Payment Method</FieldLegend>
@@ -707,6 +887,26 @@ export default function ReceiptPage() {
                   value={formData["materialName"]}
                   onChange={handleChange}
                   className="text-2xl"
+                />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="unitOfMeasure" className="text-2xl">
+                  <span>Harga per Satuan (cth: per meter / per kaki)</span>
+                  <span>
+                    ({convertToDecimal(Number(formData["unitOfMeasure"]))})
+                  </span>
+                </FieldLabel>
+                <Input
+                  type="number"
+                  name="unitOfMeasure"
+                  id="unitOfMeasure"
+                  placeholder="Harga per Satuan"
+                  required
+                  value={formData["unitOfMeasure"]}
+                  onChange={handleChange}
+                  className="text-2xl"
+                  min={0}
+                  defaultValue={0}
                 />
               </Field>
               <Field>
@@ -754,7 +954,9 @@ export default function ReceiptPage() {
                 <FieldLabel htmlFor="qty" className="text-2xl">
                   Rp.{" "}
                   {convertToDecimal(
-                    Number(formData["qty"]) * Number(formData["price"]),
+                    Number(formData["unitOfMeasure"] ?? 1) *
+                      Number(formData["qty"]) *
+                      Number(formData["price"]),
                   )}
                 </FieldLabel>
               </Field>
