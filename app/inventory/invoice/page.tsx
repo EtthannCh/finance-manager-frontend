@@ -420,7 +420,6 @@ export default function ReceiptPage() {
       numberOfLines += 1;
     });
     const MIN_ROWS = 6;
-
     while (tableData.length < MIN_ROWS) {
       tableData.push({
         materialName: "",
