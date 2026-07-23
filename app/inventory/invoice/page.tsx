@@ -436,8 +436,7 @@ export default function ReceiptPage() {
       numberOfLines += 1;
     });
     const MIN_ROWS = 6;
-
-    if (tableData.length < MIN_ROWS) {
+    while (tableData.length < MIN_ROWS) {
       tableData.push({
         materialName: "",
         qty: "",
