@@ -55,6 +55,8 @@ export default function ReceiptPage() {
     qty: "",
     price: "",
     totalPrice: "",
+    length: "",
+    unitOfMeasure: "",
   });
 
   // initalize value to string because components are not allowed to switch between controlled and uncontrolled value
@@ -69,7 +71,11 @@ export default function ReceiptPage() {
     data.map((v) => {
       currentTotal =
         currentTotal +
-        Number(v.unitOfMeasure ?? 1) *
+        // (
+        //   Number(v.unitOfMeasure) > 0
+        //     ? Number(v.unitOfMeasure)
+        //     : 1
+        // ) *
           Number(v.price ?? 0) *
           Number(v.qty ?? 0);
     });
@@ -78,7 +84,8 @@ export default function ReceiptPage() {
 
   type Receipt = {
     id: string;
-    unitOfMeasure?: string;
+    length: number | string;        // Berapa meter/kaki
+    unitOfMeasure: number | string; // Harga per meter/kaki
     materialName: string;
     qty: number | string;
     price: number | string;
@@ -95,6 +102,8 @@ export default function ReceiptPage() {
             qty: formData["qty"],
             price: formData["price"],
             totalPrice: formData["totalPrice"],
+            length: formData["length"],
+            unitOfMeasure: formData["unitOfMeasure"],
           }
         : findData,
     );
@@ -129,6 +138,18 @@ export default function ReceiptPage() {
         );
       },
       cell: EditableCell,
+    },
+    {
+      accessorKey: "length",
+      header: () => (
+        <span className="text-xl text-slate-500 font-bold">
+          Berapa Meter / Kaki
+        </span>
+      ),
+      cell: EditableCell,
+      meta: {
+        type: "number",
+      },
     },
     {
       accessorKey: "unitOfMeasure",
@@ -170,7 +191,10 @@ export default function ReceiptPage() {
       accessorFn: (row) => `${Number(row.price) * Number(row.qty)}`,
       cell: ({ row }) => {
         let total =
-          Number(row.original.unitOfMeasure ?? 1) *
+        // (Number(row.original.unitOfMeasure) > 0
+        // ? Number(row.original.unitOfMeasure)
+        // : 1) 
+        // *
           Number(row.original.price ?? 0) *
           Number(row.original.qty ?? 0);
         return (
@@ -253,6 +277,8 @@ export default function ReceiptPage() {
             qty: "",
             price: "",
             totalPrice: "",
+            length: "",
+            unitOfMeasure: "",
           },
         ]);
       },
@@ -398,7 +424,14 @@ export default function ReceiptPage() {
         materialName: v.materialName,
         qty: convertToDecimal(Number(v.qty)),
         price: "Rp " + convertToDecimal(Number(v.price)),
-        totalPrice: "Rp " + convertToDecimal(Number(v.qty) * Number(v.price)),
+        totalPrice: "Rp " + convertToDecimal(Number(v.qty) * Number(v.price)
+        // *
+        // (
+        //   Number(v.unitOfMeasure) > 0
+        //     ? Number(v.unitOfMeasure)
+        //     : 1
+        // )
+      ),
       });
       numberOfLines += 1;
     });
@@ -699,6 +732,8 @@ export default function ReceiptPage() {
       qty: "",
       price: "",
       totalPrice: "",
+      length: "",
+      unitOfMeasure: "",
     });
     setIsOpen(isOpen == "true" ? "false" : "true");
   };
@@ -712,9 +747,30 @@ export default function ReceiptPage() {
     e.preventDefault();
   };
 
+  // const qty = Number(formData["qty"]) || 0;
+  // const price = Number(formData["price"]) || 0;
+  // const unit = Number(formData["unitOfMeasure"]);
+
+  // const totalHarga = qty * price * (unit > 0 ? unit : 1);
+
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  
+    setFormData((prev) => {
+      const updated = {
+        ...prev,
+        [name]: value,
+      };
+  
+      const length = Number(updated.length);
+      const unit = Number(updated.unitOfMeasure);
+  
+      if (length > 0 && unit > 0) {
+        updated.price = String(length * unit);
+      }
+  
+      return updated;
+    });
   };
 
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -732,7 +788,7 @@ export default function ReceiptPage() {
       <div className="px-3 md:px-10">
         <h1 className="text-3xl text-gray-700">New Invoice</h1>
       </div>
-      <canvas id="testing-canvas" className=""></canvas>
+      
       <div
         className="
           p-3 md:p-5
@@ -890,10 +946,33 @@ export default function ReceiptPage() {
                 />
               </Field>
               <Field>
+                <FieldLabel htmlFor="length" className="text-2xl">
+                  <span>Berapa meter / kaki</span>
+                  <span>
+                    {formData["length"] !== ""
+                      ? `(${convertToDecimal(Number(formData["length"]))})`
+                      : ""}
+                  </span>
+                </FieldLabel>
+
+                <Input
+                  type="number"
+                  name="length"
+                  id="length"
+                  placeholder="Berapa meter / kaki"
+                  value={formData["length"]}
+                  onChange={handleChange}
+                  className="text-2xl"
+                  min={0}
+                />
+              </Field>
+              <Field>
                 <FieldLabel htmlFor="unitOfMeasure" className="text-2xl">
                   <span>Harga per Satuan (cth: per meter / per kaki)</span>
                   <span>
-                    ({convertToDecimal(Number(formData["unitOfMeasure"]))})
+                    {formData["unitOfMeasure"] !== ""
+                      ? `(${convertToDecimal(Number(formData["unitOfMeasure"]))})`
+                      : ""}
                   </span>
                 </FieldLabel>
                 <Input
@@ -901,12 +980,12 @@ export default function ReceiptPage() {
                   name="unitOfMeasure"
                   id="unitOfMeasure"
                   placeholder="Harga per Satuan"
-                  required
+                  // required
                   value={formData["unitOfMeasure"]}
                   onChange={handleChange}
                   className="text-2xl"
                   min={0}
-                  defaultValue={0}
+                  // defaultValue={0}
                 />
               </Field>
               <Field>
@@ -954,9 +1033,14 @@ export default function ReceiptPage() {
                 <FieldLabel htmlFor="qty" className="text-2xl">
                   Rp.{" "}
                   {convertToDecimal(
-                    Number(formData["unitOfMeasure"] ?? 1) *
-                      Number(formData["qty"]) *
-                      Number(formData["price"]),
+                    Number(formData["qty"] || 0) *
+                    Number(formData["price"] || 0) 
+                    // *
+                    // (
+                    //   Number(formData["unitOfMeasure"]) > 0
+                    //     ? Number(formData["unitOfMeasure"])
+                    //     : 1
+                    // )
                   )}
                 </FieldLabel>
               </Field>
