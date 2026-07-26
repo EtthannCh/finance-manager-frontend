@@ -69,14 +69,7 @@ export default function ReceiptPage() {
   useEffect(() => {
     let currentTotal = 0;
     data.map((v) => {
-      currentTotal =
-        currentTotal +
-        // (
-        //   Number(v.unitOfMeasure) > 0
-        //     ? Number(v.unitOfMeasure)
-        //     : 1
-        // ) *
-        Number(v.price ?? 0) * Number(v.qty ?? 0);
+      currentTotal = currentTotal + Number(v.price ?? 0) * Number(v.qty ?? 0);
     });
     setTotal(currentTotal);
   }, [data]);
@@ -96,18 +89,18 @@ export default function ReceiptPage() {
           }
         : findData,
     );
-    table.options.meta?.updateData(
-      {
-        id: formData["id"],
-        materialName: formData["materialName"],
-        qty: formData["qty"],
-        price: formData["price"],
-        totalPrice: formData["totalPrice"],
-        length: formData["length"],
-        unitOfMeasure: formData["unitOfMeasure"],
-      },
-      formData["id"],
-    );
+    // table.options.meta?.updateData(
+    //   {
+    //     id: formData["id"],
+    //     materialName: formData["materialName"],
+    //     qty: formData["qty"],
+    //     price: formData["price"],
+    //     totalPrice: formData["totalPrice"],
+    //     length: formData["length"],
+    //     unitOfMeasure: formData["unitOfMeasure"],
+    //   },
+    //   formData["id"],
+    // );
   };
 
   const handleRemoveData = (id: string): void => {
@@ -179,7 +172,33 @@ export default function ReceiptPage() {
       header: () => (
         <span className="text-xl text-slate-500 font-bold">Harga Satuan</span>
       ),
-      cell: EditableCell,
+      cell: function Cell({ getValue, row, column, table }) {
+        if (
+          row.original.unitOfMeasure === undefined ||
+          row.original.unitOfMeasure === "" ||
+          row.original.length === undefined ||
+          row.original.length === ""
+        ) {
+          return (
+            <EditableCell
+              getValue={getValue}
+              row={row}
+              column={column}
+              table={table}
+            />
+          );
+        }
+
+        row.original.price =
+          Number(row.original.length) * Number(row.original.unitOfMeasure);
+        return (
+          <span>
+            {convertToDecimal(
+              Number(row.original.length) * Number(row.original.unitOfMeasure),
+            )}
+          </span>
+        );
+      },
       meta: {
         type: "number",
       },
@@ -189,7 +208,6 @@ export default function ReceiptPage() {
       header: () => (
         <span className="text-xl text-slate-500 font-bold">Jumlah Harga</span>
       ),
-      accessorFn: (row) => `${Number(row.price) * Number(row.qty)}`,
       cell: ({ row }) => {
         let total =
           // (Number(row.original.unitOfMeasure) > 0
@@ -241,6 +259,7 @@ export default function ReceiptPage() {
   const table = useReactTable({
     data,
     columns,
+    getRowId: (row) => row.id,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
@@ -288,27 +307,22 @@ export default function ReceiptPage() {
         );
         setData(updatedData);
       },
-      calculateTotal: (data: Receipt[]) => {
-        let currentTotal = 0;
-        data.map((v) => {
-          currentTotal =
-            currentTotal + Number(v.price ?? 0) * Number(v.qty ?? 0);
-        });
-        setTotal(currentTotal);
-      },
+      // calculateTotal: (data: Receipt[]) => {
+      //   let currentTotal = 0;
+      //   data.map((v) => {
+      //     currentTotal =
+      //       currentTotal + Number(v.price ?? 0) * Number(v.qty ?? 0);
+      //   });
+      //   setTotal(currentTotal);
+      // },
       updateData: (dataToUpdate: Receipt, id: string) => {
         const dataFound = data.find((v) => v.id === id);
         if (dataFound == undefined) {
           setData([...data, formData]);
         } else {
-          setData((old) =>
-            old.map((v) => {
-              if (v.id === id) {
-                return dataToUpdate;
-              }
-              return v;
-            }),
-          );
+          setData((prev) => {
+            return prev.map((v) => (v.id === id ? dataToUpdate : v));
+          });
         }
       },
     },
@@ -324,16 +338,6 @@ export default function ReceiptPage() {
   const exportPdf = async (actions: string) => {
     let y = 0;
     const doc = new jsPDF("l", "pt", "a4");
-
-    // doc.text(
-    //   date?.toLocaleDateString("id-ID", {
-    //     day: "numeric",
-    //     month: "long",
-    //     year: "numeric",
-    //   }) ?? "",
-    //   740,
-    //   20,
-    // );
 
     doc.setProperties({
       title: `Invoice-${addressTo}-${
@@ -363,16 +367,7 @@ export default function ReceiptPage() {
 
     doc.setFont("helvetica", "bold");
 
-    // doc.text("Invoice No :",560,80);
     doc.text("Tanggal :", 560, 100);
-    // doc.text("Due Date :",560,120);
-
-    // doc.text(
-    //     "INV-0001",
-    //     780,
-    //     80,
-    //     {align:"right"}
-    // );
 
     doc.text(
       date?.toLocaleDateString("id-ID", {
@@ -385,8 +380,6 @@ export default function ReceiptPage() {
       { align: "right" },
     );
 
-    // doc.text("-",780,120,{align:"right"});
-
     doc.rect(40, 80, 400, 65);
 
     doc.setFont("helvetica", "bold");
@@ -394,14 +387,6 @@ export default function ReceiptPage() {
 
     doc.setFont("helvetica", "normal");
     doc.text(addressTo || "-", 50, 133);
-
-    // doc.rect(300, 80, 230, 60);
-
-    // doc.setFont("helvetica", "bold");
-    // doc.text("PO :", 310, 100);
-
-    // doc.setFont("helvetica", "normal");
-    // doc.text("-", 310, 120);
 
     y += 20;
 
@@ -413,8 +398,8 @@ export default function ReceiptPage() {
     data.forEach((v, index) => {
       tableData.push({
         materialName: v.materialName,
-        qty: convertToDecimal(Number(v.qty)),
-        price: "Rp " + convertToDecimal(Number(v.price)),
+        qty: convertToDecimal(Number(v.qty) ?? 0),
+        price: "Rp " + convertToDecimal(Number(v.price) ?? 0),
         totalPrice: "Rp " + convertToDecimal(Number(v.qty) * Number(v.price)),
       });
       numberOfLines += 1;
@@ -517,16 +502,7 @@ export default function ReceiptPage() {
 
     doc2.setFont("helvetica", "bold");
 
-    // doc.text("Invoice No :",560,80);
     doc2.text("Tanggal :", pdfWidth * 1.8 - 300, 100);
-    // doc.text("Due Date :",560,120);
-
-    // doc.text(
-    //     "INV-0001",
-    //     780,
-    //     80,
-    //     {align:"right"}
-    // );
 
     doc2.text(
       date?.toLocaleDateString("id-ID", {
@@ -539,8 +515,6 @@ export default function ReceiptPage() {
       { align: "right" },
     );
 
-    // doc.text("-",780,120,{align:"right"});
-
     doc2.rect(40, 80, 400, 65);
 
     doc2.setFont("helvetica", "bold");
@@ -548,14 +522,6 @@ export default function ReceiptPage() {
 
     doc2.setFont("helvetica", "normal");
     doc2.text(addressTo || "-", 50, 130);
-
-    // doc.rect(300, 80, 230, 60);
-
-    // doc.setFont("helvetica", "bold");
-    // doc.text("PO :", 310, 100);
-
-    // doc.setFont("helvetica", "normal");
-    // doc.text("-", 310, 120);
 
     doc2.setFontSize(16);
 
@@ -569,7 +535,7 @@ export default function ReceiptPage() {
         bottom: 80,
       },
       styles: {
-        fontSize: 20,
+        fontSize: 25,
         fontStyle: "bold",
         cellPadding: 10,
         minCellHeight: 45,
@@ -582,9 +548,14 @@ export default function ReceiptPage() {
         },
         price: {
           halign: "right",
+          cellWidth: 350,
         },
         totalPrice: {
           halign: "right",
+          cellWidth: 350,
+        },
+        materialName: {
+          cellWidth: 550,
         },
       },
       columns: [
@@ -633,12 +604,6 @@ export default function ReceiptPage() {
       align: "right",
     });
 
-    // doc.text(
-    //   "Barang yang sudah dibeli tidak dapat dikembalikan.",
-    //   40,
-    //   y + 50
-    // );
-
     doc.setFontSize(9);
     doc.setTextColor(150);
 
@@ -655,29 +620,7 @@ export default function ReceiptPage() {
         background: "white",
       });
 
-      // let canvasUrl = "";
-      // const canvas = document.getElementById(
-      //   "testing-canvas",
-      // ) as HTMLCanvasElement;
-      // let context = canvas.getContext("2d");
-      // canvas.width = 920;
-      // canvas.height = 100;
-
-      // let yAxis = 0;
       images.forEach((imgSrc) => {
-        //   const tesImg = new Image();
-        //   tesImg.src = imgSrc;
-
-        //   const currentY = yAxis;
-        //   yAxis += 750;
-
-        //   canvas.height = yAxis;
-        //   tesImg.onload = function () {
-
-        //     context?.beginPath();
-        //     context?.drawImage(tesImg, 30, currentY, 750, 750);
-        //     context?.fill();
-        //   };
         var link = document.createElement("a");
         link.download = `Invoice-${addressTo}-${
           date?.toLocaleDateString("id-ID", {
@@ -689,21 +632,6 @@ export default function ReceiptPage() {
         link.href = imgSrc;
         link.click();
       });
-
-      // link.href = canvas.toDataURL("image/jpeg");
-      // canvas.onload = function () {
-      // console.log(images);
-      // };
-
-      // doc.save(
-      //   `Invoice-${addressTo}-${
-      //     date?.toLocaleDateString("id-ID", {
-      //       day: "numeric",
-      //       month: "long",
-      //       year: "numeric",
-      //     }) ?? ""
-      //   }`,
-      // );
     }
   };
 
@@ -721,12 +649,14 @@ export default function ReceiptPage() {
     setIsOpen(isOpen == "true" ? "false" : "true");
   };
 
-  const handleFormDataChanges = async (e: SyntheticEvent<HTMLFormElement>) => {
+  const handleFormDataChanges = (e: SyntheticEvent<HTMLFormElement>) => {
+    handleOpenSheet();
+
     table.options.meta?.updateData(
       formData ?? { materialName: "", qty: "", price: "", totalPrice: "" },
       formData["id"],
     );
-    handleOpenSheet();
+
     e.preventDefault();
   };
 
@@ -757,6 +687,15 @@ export default function ReceiptPage() {
   };
 
   const isMobile = useMediaQuery("(max-width: 768px)");
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return "Loading";
+  }
+
   return (
     <div className="w-full min-h-screen bg-white md:bg-[#f5f7fb] py-3">
       {/* <Button

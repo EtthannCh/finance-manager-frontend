@@ -26,8 +26,8 @@ export const EditableCell = ({ getValue, row, column, table }: any) => {
       {isMobile ? (
         <span className="text-lg font-bold text-slate-500">
           {column.columnDef.meta?.type == "number"
-            ? convertToDecimal(Number(getValue()))
-            : getValue()}
+            ? convertToDecimal(Number(getValue() ?? 0))
+            : (getValue() ?? "")}
         </span>
       ) : (
         <Input
