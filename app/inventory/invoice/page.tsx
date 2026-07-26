@@ -192,7 +192,7 @@ export default function ReceiptPage() {
         row.original.price =
           Number(row.original.length) * Number(row.original.unitOfMeasure);
         return (
-          <span>
+          <span className="text-lg font-bold text-slate-500">
             {convertToDecimal(
               Number(row.original.length) * Number(row.original.unitOfMeasure),
             )}
@@ -743,6 +743,8 @@ export default function ReceiptPage() {
                     qty: row.getValue("qty"),
                     price: row.getValue("price"),
                     totalPrice: row.getValue("totalPrice"),
+                    length: row.getValue("length"),
+                    unitOfMeasure: row.getValue("unitOfMeasure"),
                   };
                 });
               sessionStorage.setItem("tableData", JSON.stringify(cleanedData));
@@ -882,7 +884,7 @@ export default function ReceiptPage() {
                   name="length"
                   id="length"
                   placeholder="Berapa meter / kaki"
-                  value={formData["length"]}
+                  value={formData["length"] ?? 0}
                   onChange={handleChange}
                   className="text-2xl"
                   min={0}
@@ -893,7 +895,7 @@ export default function ReceiptPage() {
                   <span>Harga per Satuan (cth: per meter / per kaki)</span>
                   <span>
                     {formData["unitOfMeasure"] !== ""
-                      ? `(${convertToDecimal(Number(formData["unitOfMeasure"]))})`
+                      ? `(${convertToDecimal(Number(formData["unitOfMeasure"] ?? 0))})`
                       : ""}
                   </span>
                 </FieldLabel>

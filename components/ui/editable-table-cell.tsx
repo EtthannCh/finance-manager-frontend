@@ -11,7 +11,7 @@ export const EditableCell = ({ getValue, row, column, table }: any) => {
   const isMobile = useMediaQuery("(max-width: 768px)");
   useEffect(() => {
     setValue(getValue() ?? "");
-  }, []);
+  }, [getValue()]);
 
   const onBlur = () => {
     table.options.meta?.updateIndividualDataByIndex(
