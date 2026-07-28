@@ -8,7 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 export const convertToDecimal = (value: number) => {
   return Number(value).toLocaleString("id-ID", {
     minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    maximumFractionDigits: 2,
   });
 };
 
