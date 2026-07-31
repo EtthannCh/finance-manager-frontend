@@ -149,7 +149,7 @@ export default function ReceiptPage() {
       accessorKey: "unitOfMeasure",
       header: () => (
         <span className="text-xl text-slate-500 font-bold">
-          Harga per Satuan
+          Harga per Meter / Kaki
         </span>
       ),
       cell: EditableCell,
@@ -487,22 +487,22 @@ export default function ReceiptPage() {
     // ================= HEADER =================
 
     doc2.setFont("helvetica", "bold");
-    doc2.setFontSize(22);
 
-    doc2.setFontSize(26);
+    doc2.setFontSize(34);
 
     doc2.text("INVOICE", pdfWidth * 1.8 + 40, 40, {
       align: "right",
     });
 
     doc2.setDrawColor(180);
+    doc2.setLineWidth(2.5);
     doc2.line(40, 55, pdfWidth * 1.8 + 40, 55);
 
-    doc2.setFontSize(20);
+    doc2.setFontSize(35);
 
     doc2.setFont("helvetica", "bold");
 
-    doc2.text("Tanggal :", pdfWidth * 1.8 - 300, 100);
+    doc2.text("Tanggal :", pdfWidth * 1.8 - 350, 120);
 
     doc2.text(
       date?.toLocaleDateString("id-ID", {
@@ -511,17 +511,18 @@ export default function ReceiptPage() {
         year: "numeric",
       }) ?? "",
       pdfWidth * 1.8 + 40,
-      100,
+      120,
       { align: "right" },
     );
 
-    doc2.rect(40, 80, 400, 65);
+    doc2.setLineWidth(2);
+    doc2.rect(40, 80, 800, 100, "S");
 
     doc2.setFont("helvetica", "bold");
-    doc2.text("Kepada :", 50, 105);
+    doc2.text("Kepada :", 50, 120);
 
     doc2.setFont("helvetica", "normal");
-    doc2.text(addressTo || "-", 50, 130);
+    doc2.text(addressTo || "-", 50, 160);
 
     doc2.setFontSize(16);
 
@@ -531,16 +532,16 @@ export default function ReceiptPage() {
       margin: {
         left: 40,
         right: 40,
-        top: 160,
+        top: 220,
         bottom: 80,
       },
       styles: {
-        fontSize: 25,
+        fontSize: 35,
         fontStyle: "bold",
-        cellPadding: 10,
+        cellPadding: 15,
         minCellHeight: 45,
-        lineWidth: 2,
-        lineColor: [220, 220, 220],
+        lineWidth: 3,
+        lineColor: [180, 180, 180],
       },
       columnStyles: {
         qty: {
@@ -593,14 +594,14 @@ export default function ReceiptPage() {
 
     doc2.setFillColor(245, 245, 245);
 
-    doc2.roundedRect(pdfWidth * 1.38, ypos + 20, 400, 60, 3, 3, "FD");
+    doc2.roundedRect(pdfWidth * 1.25, ypos + 20, 500, 90, 3, 3, "FD");
 
     doc2.setFont("helvetica", "bold");
-    doc2.setFontSize(20);
+    doc2.setFontSize(40);
 
-    doc2.text("TOTAL : ", pdfWidth * 1.8 - 340, ypos + 57);
+    doc2.text("TOTAL : ", pdfWidth * 1.8 - 450, ypos + 75);
 
-    doc2.text("Rp " + convertToDecimal(total), pdfWidth * 1.8 + 20, ypos + 57, {
+    doc2.text("Rp " + convertToDecimal(total), pdfWidth * 1.8 + 20, ypos + 75, {
       align: "right",
     });
 
@@ -839,9 +840,9 @@ export default function ReceiptPage() {
             Save Gambar
           </Button>
         </div>
-        {/* <div className="flex items-center justify-center w-full h-[600px] mt-5">
+        <div className="flex items-center justify-center w-full h-[600px] mt-5">
           <iframe src={pdfUrl} width="100%" height="100%"></iframe>
-        </div> */}
+        </div>
       </div>
       <Sheet
         open={isOpen == "true" ? true : false}
@@ -888,11 +889,12 @@ export default function ReceiptPage() {
                   onChange={handleChange}
                   className="text-2xl"
                   min={0}
+                  step="any"
                 />
               </Field>
               <Field>
                 <FieldLabel htmlFor="unitOfMeasure" className="text-2xl">
-                  <span>Harga per Satuan (cth: per meter / per kaki)</span>
+                  <span>Harga per Meter / Kaki</span>
                   <span>
                     {formData["unitOfMeasure"] !== ""
                       ? `(${convertToDecimal(Number(formData["unitOfMeasure"] ?? 0))})`
@@ -948,6 +950,10 @@ export default function ReceiptPage() {
                   className="text-2xl"
                   min={0}
                   defaultValue={0}
+                  disabled={
+                    formData["length"] !== "" ||
+                    formData["unitOfMeasure"] !== ""
+                  }
                 />
               </Field>
               <Field>
