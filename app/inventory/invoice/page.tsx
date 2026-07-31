@@ -495,7 +495,7 @@ export default function ReceiptPage() {
     });
 
     doc2.setDrawColor(180);
-    doc2.setLineWidth(2.5);
+    doc2.setLineWidth(1);
     doc2.line(40, 55, pdfWidth * 1.8 + 40, 55);
 
     doc2.setFontSize(35);
@@ -515,7 +515,7 @@ export default function ReceiptPage() {
       { align: "right" },
     );
 
-    doc2.setLineWidth(2);
+    doc2.setLineWidth(1);
     doc2.rect(40, 80, 800, 100, "S");
 
     doc2.setFont("helvetica", "bold");
