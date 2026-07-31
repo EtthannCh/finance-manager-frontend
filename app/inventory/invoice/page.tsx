@@ -673,7 +673,9 @@ export default function ReceiptPage() {
     setFormData((prev) => {
       const updated = {
         ...prev,
-        [name]: value,
+        [name]: name === "length"
+          ? value.replace(",", ".")
+          : value,
       };
 
       const length = Number(updated.length);
@@ -881,15 +883,16 @@ export default function ReceiptPage() {
                 </FieldLabel>
 
                 <Input
-                  type="number"
+                  type="text"
                   name="length"
+                  inputMode="decimal"
                   id="length"
                   placeholder="Berapa meter / kaki"
-                  value={formData["length"] ?? 0}
+                  value={formData["length"] ?? ""}
                   onChange={handleChange}
                   className="text-2xl"
-                  min={0}
-                  step="any"
+                  // min={0}
+                  // step="any"
                 />
               </Field>
               <Field>
