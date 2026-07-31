@@ -502,7 +502,7 @@ export default function ReceiptPage() {
 
     doc2.setFont("helvetica", "bold");
 
-    doc2.text("Tanggal :", pdfWidth * 1.8 - 350, 120);
+    doc2.text("Tanggal :", pdfWidth * 1.8 - 460, 120);
 
     doc2.text(
       date?.toLocaleDateString("id-ID", {
@@ -516,13 +516,13 @@ export default function ReceiptPage() {
     );
 
     doc2.setLineWidth(1);
-    doc2.rect(40, 80, 800, 100, "S");
+    doc2.rect(40, 80, 800, 122, "S");
 
     doc2.setFont("helvetica", "bold");
-    doc2.text("Kepada :", 50, 120);
+    doc2.text("Kepada :", 55, 125);
 
     doc2.setFont("helvetica", "normal");
-    doc2.text(addressTo || "-", 50, 160);
+    doc2.text(addressTo || "-", 55, 180);
 
     doc2.setFontSize(16);
 
