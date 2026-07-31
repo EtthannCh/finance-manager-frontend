@@ -840,9 +840,9 @@ export default function ReceiptPage() {
             Save Gambar
           </Button>
         </div>
-        <div className="flex items-center justify-center w-full h-[600px] mt-5">
+        {/* <div className="flex items-center justify-center w-full h-[600px] mt-5">
           <iframe src={pdfUrl} width="100%" height="100%"></iframe>
-        </div>
+        </div> */}
       </div>
       <Sheet
         open={isOpen == "true" ? true : false}
