@@ -328,7 +328,7 @@ export default function ReceiptPage() {
     doc.setFont("helvetica", "bold");
 
     // doc.text("Invoice No :",560,80);
-    doc.text("Tanggal :", 560, 100);
+    doc.text("Tanggal :", 500, 100);
     // doc.text("Due Date :",560,120);
 
     // doc.text(
